@@ -1,6 +1,6 @@
 name: CI
 on:
-  push:
+    push:
     branches: [master]
   pull_request:
     branches: [master]
@@ -8,7 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-  - uses: mansagroup/nrwl-nx-action@v1
-    with:
-      targets: lint,test,e2e,build
-      parallel: 'true'
+    steps:
+      - uses: mansagroup/nrwl-nx-action@v1
+        with:
+          targets: lint
+          all: 'true'
+          parallel: 'true'
