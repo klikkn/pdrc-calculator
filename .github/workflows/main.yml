@@ -18,13 +18,13 @@ jobs:
         run: npm i
 
       - name: Lint
-        run: npm run affected:lint
+        run: npm run affected:lint -- --base=remotes/origin/main
 
       - name: Test
-        run: npm run affected:test
+        run: npm run affected:test -- --base=remotes/origin/main
 
       - name: E2E
-        run: npm run affected:e2e
+        run: npm run affected:e2e -- --base=remotes/origin/main
 
       - name: Build
-        run: npm run affected:build
+        run: npm run affected:build -- --base=remotes/origin/main
