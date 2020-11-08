@@ -17,11 +17,11 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.1.2
 
-      - name: Install dependencies
-        run: npm i
-
       - name: Fetch master
         run: git fetch --no-tags --prune --depth=5 origin master
+
+      - name: Install dependencies
+        run: npm i
 
       - name: Lint
         run: npm run affected:lint -- --base=origin/master
