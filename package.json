@@ -9,7 +9,7 @@
     "start": "node dist/apps/api/main",
     "serve": "ng serve",
     "build": "ng build",
-    "heroku-postbuild": "npm run affected:build --base=remotes/origin/master",
+    "heroku-postbuild": "npm run affected:build -- --base=remotes/origin/master",
     "test": "ng test",
     "lint": "nx workspace-lint && ng lint",
     "e2e": "ng e2e",
