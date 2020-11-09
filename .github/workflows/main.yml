@@ -39,7 +39,7 @@ jobs:
         run: npm run build --prod api
 
       - name: Login to heroku
-        uses: akhileshns/heroku-deploy@v3
+        uses: akhileshns/heroku-deploy@v3.6.8
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: ''
