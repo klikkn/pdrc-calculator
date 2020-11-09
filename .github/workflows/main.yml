@@ -52,6 +52,8 @@ jobs:
           HEROKU_APP_NAME: ${{secrets.HEROKU_STAGE_APP}}
         if: job.status == 'success'
         run: |
+          git config user.email ${{secrets.GIT_EMAIL}}
+          git config user.name ${{secrets.GIT_NAME}}
           rm -rf .gitignore
           mv .gitignore.heroku .gitignore
           git add -A
