@@ -20,8 +20,8 @@ jobs:
       - name: Fetch master
         run: git fetch --no-tags --prune --depth=5 origin master
 
-      # - name: Install dependencies
-      #   run: npm i
+      - name: Install dependencies
+        run: npm i
 
       # - name: Lint
       #   run: npm run affected:lint -- --base=origin/master
@@ -38,12 +38,7 @@ jobs:
       - name: Build
         run: npm run build --prod api
 
-      - name: Prepare to deploy
-        run: |
-          rm -rf .gitignore
-          mv .gitignore.heroku .gitignore
-          git add -A
-          git commit -m "deploy"
+      - name: Login to heroku
         uses: akhileshns/heroku-deploy@v3.0.0
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
@@ -56,5 +51,9 @@ jobs:
           HEROKU_APP_NAME: ${{secrets.HEROKU_STAGE_APP}}
         if: job.status == 'success'
         run: |
+          rm -rf .gitignore
+          mv .gitignore.heroku .gitignore
+          git add -A
+          git commit -m "deploy"
           git remote add heroku https://git.heroku.com/$HEROKU_APP_NAME.git
           git push heroku master
