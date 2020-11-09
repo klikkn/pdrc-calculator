@@ -45,7 +45,6 @@ jobs:
           heroku_app_name: ''
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
-      - run: heroku auth:whoami
 
       - name: Deploy to Heroku
         env:
