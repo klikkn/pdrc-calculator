@@ -23,14 +23,14 @@ jobs:
       - name: Install dependencies
         run: npm i
 
-      - name: Lint
-        run: npm run affected:lint -- --base=origin/master
+      # - name: Lint
+      #   run: npm run affected:lint -- --base=origin/master
 
-      - name: Test
-        run: npm run affected:test -- --base=origin/master
+      # - name: Test
+      #   run: npm run affected:test -- --base=origin/master
 
-      - name: E2E
-        run: npm run affected:e2e -- --base=origin/master
+      # - name: E2E
+      #   run: npm run affected:e2e -- --base=origin/master
 
       - name: Build pdrc
         run: npm run build --prod
@@ -55,10 +55,18 @@ jobs:
           git add --all
           git commit -m "deploy"
 
+      - run: |
+          rm -rf .gitignore
+          mv .gitignore.heroku .gitignore
+
+      - run: |
+          git add --all
+          git commit -m "deploy"
+
       - name: Deploy to Heroku
         env:
           HEROKU_APP_NAME: pdrc-calculator-stage
         if: job.status == 'success'
         run: |
           git remote add heroku https://git.heroku.com/$HEROKU_APP_NAME.git
-          git push heroku master
+          git push -u heroku master
