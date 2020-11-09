@@ -48,8 +48,7 @@ jobs:
 
       - name: Deploy to Heroku
         env:
-          HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
-          HEROKU_APP_NAME: ${{secrets.HEROKU_STAGE_APP}}
+          HEROKU_APP_NAME: pdrc-calculator-stage
         if: job.status == 'success'
         run: |
           git config user.email ${{secrets.GIT_EMAIL}}
