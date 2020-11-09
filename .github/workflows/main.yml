@@ -32,18 +32,20 @@ jobs:
       # - name: E2E
       #   run: npm run affected:e2e -- --base=origin/master
 
-      - name: Build
+      - name: Build pdrc
         run: npm run build --prod
 
-      - name: Build
+      - name: Build api
         run: npm run build --prod api
 
       - name: Login to heroku
         uses: akhileshns/heroku-deploy@v3.0.0
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: ''
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
+      - run: heroku auth:whoami
 
       - name: Deploy to Heroku
         env:
