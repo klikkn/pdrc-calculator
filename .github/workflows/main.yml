@@ -20,23 +20,23 @@ jobs:
       - name: Fetch master
         run: git fetch --no-tags --prune --depth=5 origin master
 
-      - name: Install dependencies
-        run: npm i
+      # - name: Install dependencies
+      #   run: npm i
 
-      - name: Lint
-        run: npm run affected:lint -- --base=origin/master
+      # - name: Lint
+      #   run: npm run affected:lint -- --base=origin/master
 
-      - name: Test
-        run: npm run affected:test -- --base=origin/master
+      # - name: Test
+      #   run: npm run affected:test -- --base=origin/master
 
-      - name: E2E
-        run: npm run affected:e2e -- --base=origin/master
+      # - name: E2E
+      #   run: npm run affected:e2e -- --base=origin/master
 
-      - name: Build pdrc
-        run: npm run build --prod
+      # - name: Build pdrc
+      #   run: npm run build --prod
 
-      - name: Build api
-        run: npm run build --prod api
+      # - name: Build api
+      #   run: npm run build --prod api
 
       - name: Login to heroku
         uses: akhileshns/heroku-deploy@v3.6.8
