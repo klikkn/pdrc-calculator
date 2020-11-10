@@ -12,5 +12,8 @@
     {
       "path": "./tsconfig.editor.json"
     }
-  ]
+  ],
+  "paths": {
+    "@pdrc/api-interfaces": ["libs/api-interfaces/src/index.ts"]
+  }
 }

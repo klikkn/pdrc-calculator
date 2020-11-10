@@ -9,5 +9,8 @@
     {
       "path": "./tsconfig.spec.json"
     }
-  ]
+  ],
+  "paths": {
+    "@pdrc/api-interfaces": ["libs/api-interfaces/src/index.ts"]
+  }
 }
