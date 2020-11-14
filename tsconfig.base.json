@@ -16,7 +16,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@pdrc/api-interfaces": ["libs/api-interfaces/src/index.ts"]
+      "@pdrc/api-interfaces": ["libs/api-interfaces/src/index.ts"],
+      "@pdrc/pdrc": ["apps/pdrc/src"],
+      "@pdrc/api": ["apps/api/src"]
     }
   },
   "exclude": ["node_modules", "tmp"]
