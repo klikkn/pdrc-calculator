@@ -7,9 +7,15 @@ import { AppService } from './app.service';
 
 import { UsersModule } from './modules/users/users.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { CarsModule } from './modules/cars/cars.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(OrmConfig), UsersModule, OrdersModule],
+  imports: [
+    TypeOrmModule.forRoot(OrmConfig),
+    UsersModule,
+    OrdersModule,
+    CarsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
