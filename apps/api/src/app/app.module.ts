@@ -9,11 +9,12 @@ import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
+    MongooseModule.forRoot(process.env.DB_URL),
+    UsersModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'pdrc'),
       exclude: ['/api*'],
     }),
-    MongooseModule.forRoot(process.env.DB_URL), UsersModule
   ],
   controllers: [AppController],
   providers: [AppService],
