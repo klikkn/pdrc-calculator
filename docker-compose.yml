@@ -1,0 +1,34 @@
+version: '3.6'
+
+services:
+  mongodb:
+    image: mongo:bionic
+    container_name: mongodb
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_DATABASE=pdrc_db
+    volumes:
+      - ./.docker/mongodb:/data/db
+      - ./.docker/mongoconfig:/data/configdb
+    networks:
+      - mongo_net
+
+  mongoclient:
+    image: mongoclient/mongoclient:latest
+    container_name: mongoclient
+    hostname: mongoclient
+    depends_on:
+      - mongodb
+    networks:
+      - mongo_net
+    ports:
+      - 3300:3000
+
+volumes:
+  mongodb:
+  mongoconfig:
+
+networks:
+  mongo_net:
+    driver: bridge
