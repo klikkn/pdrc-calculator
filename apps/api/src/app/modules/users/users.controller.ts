@@ -1,22 +1,23 @@
 import { Controller } from '@nestjs/common';
 import { Crud, CrudController } from '@nestjsx/crud';
-
-import { UserEntity } from './user.entity';
+import { User } from './user.schema';
 import { UsersService } from './users.service';
 
 @Crud({
   model: {
-    type: UserEntity,
+    type: User,
   },
-  params: {
-    id: {
-      type: 'uuid',
-      primary: true,
-      field: 'id',
-    },
+  serialize: {
+    get: false,
+    getMany: false,
+    createMany: false,
+    create: false,
+    update: false,
+    replace: false,
+    delete: false,
   },
 })
 @Controller('users')
-export class UsersController implements CrudController<UserEntity> {
+export class UsersController implements CrudController<User> {
   constructor(public service: UsersService) {}
 }

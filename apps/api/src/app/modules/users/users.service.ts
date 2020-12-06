@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
-
-import { UserEntity } from './user.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { MongooseCrudService } from 'nest-crud-mongoose';
+import { Model } from 'mongoose';
+import { UserDocument } from './user.schema';
 
 @Injectable()
-export class UsersService extends TypeOrmCrudService<UserEntity> {
-  constructor(@InjectRepository(UserEntity) repo) {
-    super(repo);
+export class UsersService extends MongooseCrudService<UserDocument> {
+  constructor(@InjectModel('User') model: Model<UserDocument>) {
+    super(model);
   }
 }
