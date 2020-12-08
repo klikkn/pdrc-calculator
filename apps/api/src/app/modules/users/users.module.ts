@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -6,7 +7,20 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema }])],
+  imports: [
+    MongooseModule.forFeatureAsync([
+      {
+        name: 'User',
+        useFactory: () => {
+          const schema = UserSchema;
+          schema.pre('save', function () {
+            this.password = bcrypt.hashSync(this.password);
+          });
+          return schema;
+        },
+      },
+    ]),
+  ],
   providers: [UsersService],
   exports: [UsersService],
   controllers: [UsersController],
