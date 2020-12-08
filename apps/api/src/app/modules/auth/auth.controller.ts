@@ -38,6 +38,7 @@ export class AuthController {
     }
   }
 
+  @Public()
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('/login')
