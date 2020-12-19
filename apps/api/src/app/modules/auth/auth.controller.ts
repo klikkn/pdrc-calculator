@@ -12,7 +12,8 @@ import { validateOrReject } from 'class-validator';
 import { Public } from '../../shared/decorators';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { UserRegisterRequestDto } from './dto';
+import { UserRegisterRequestDto, UserRegisterResponseDto } from './dto';
+import { classToPlain, TransformClassToPlain } from 'class-transformer';
 
 @Controller('auth')
 export class AuthController {
@@ -31,7 +32,11 @@ export class AuthController {
 
     try {
       await validateOrReject(new UserRegisterRequestDto(dto));
-      return this.authService.register(dto);
+      const { user, ...rest } = await this.authService.register(dto);
+      return {
+        ...rest,
+        user: classToPlain(new UserRegisterResponseDto(user.toJSON())),
+      };
     } catch (err) {
       //TODO(klikkn) implement errors handler
       throw new HttpException(err, HttpStatus.BAD_REQUEST);
@@ -42,7 +47,17 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('/login')
+  @TransformClassToPlain()
   async login(@Request() req) {
-    return this.authService.login(req.user);
+    try {
+      const { user, ...rest } = await this.authService.login(req.user);
+      return {
+        ...rest,
+        user: classToPlain(new UserRegisterResponseDto(user.toJSON())),
+      };
+    } catch (err) {
+      //TODO(klikkn) implement errors handler
+      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+    }
   }
 }

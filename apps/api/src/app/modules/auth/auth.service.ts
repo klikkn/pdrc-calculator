@@ -28,14 +28,8 @@ export class AuthService {
   }
 
   async login(user: UserDocument) {
-    const payload = {
-      id: user._id,
-    };
-
-    return {
-      user: user,
-      access_token: this.jwtService.sign(payload),
-    };
+    const payload = { id: user._id };
+    return { user, access_token: this.jwtService.sign(payload) };
   }
 
   async register(dto: UserRegisterRequestDto) {

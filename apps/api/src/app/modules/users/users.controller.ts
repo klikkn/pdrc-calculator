@@ -7,6 +7,13 @@ import { UsersService } from './users.service';
   model: {
     type: User,
   },
+  params: {
+    id: {
+      type: 'string',
+      primary: true,
+      field: '_id',
+    },
+  },
   serialize: {
     get: false,
     getMany: false,
