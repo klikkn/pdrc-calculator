@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -13,8 +13,12 @@ import { UsersController } from './users.controller';
         name: User.name,
         useFactory: () => {
           const schema = UserSchema;
-          schema.pre('save', function () {
-            this.password = bcrypt.hashSync(this.password);
+          schema.pre('save', async function (next) {
+            try {
+              this.password = bcrypt.hashSync(this.password);
+            } catch (err) {
+              next(err);
+            }
           });
           return schema;
         },

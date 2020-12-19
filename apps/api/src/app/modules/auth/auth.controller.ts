@@ -13,11 +13,7 @@ import { Public } from '../../shared/decorators';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { UserRegisterRequestDto, UserRegisterResponseDto } from './dto';
-import {
-  classToPlain,
-  serialize,
-  TransformClassToPlain,
-} from 'class-transformer';
+import { classToPlain, TransformClassToPlain } from 'class-transformer';
 
 @Controller('auth')
 export class AuthController {

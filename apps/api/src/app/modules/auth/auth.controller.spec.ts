@@ -8,9 +8,17 @@ import { HttpException } from '@nestjs/common';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtService } from '@nestjs/jwt';
 
+const document = {
+  _id: 1,
+  __v: 0,
+  toJSON() {
+    return this;
+  },
+};
+
 class AuthServiceMock {
   login(user) {
-    return { user, access_token: 'token' };
+    return { user: { ...user, ...document }, access_token: 'token' };
   }
   register(user) {
     return this.login(user);
@@ -18,8 +26,8 @@ class AuthServiceMock {
 }
 
 class UsersServiceMock {
-  create(data) {
-    return { ...data, _id: 1 };
+  create(user) {
+    return { ...user, ...document };
   }
 }
 
