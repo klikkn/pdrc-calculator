@@ -12,7 +12,8 @@ import { validateOrReject } from 'class-validator';
 import { Public } from '../../shared/decorators';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { UserRegisterRequestDto } from './dto';
+import { UserRegisterRequestDto, UserRegisterResponseDto } from './dto';
+import { serialize } from 'class-transformer';
 
 @Controller('auth')
 export class AuthController {
@@ -31,7 +32,11 @@ export class AuthController {
 
     try {
       await validateOrReject(new UserRegisterRequestDto(dto));
-      return this.authService.register(dto);
+      const { user, ...rest } = await this.authService.register(dto);
+      return {
+        ...rest,
+        user: JSON.parse(serialize(new UserRegisterResponseDto(user))),
+      };
     } catch (err) {
       //TODO(klikkn) implement errors handler
       throw new HttpException(err, HttpStatus.BAD_REQUEST);
@@ -43,6 +48,10 @@ export class AuthController {
   @HttpCode(200)
   @Post('/login')
   async login(@Request() req) {
-    return this.authService.login(req.user);
+    const { user, ...rest } = await this.authService.login(req.user);
+    return {
+      ...rest,
+      user: JSON.parse(serialize(new UserRegisterResponseDto(user))),
+    };
   }
 }
