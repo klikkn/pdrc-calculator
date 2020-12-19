@@ -13,7 +13,11 @@ import { Public } from '../../shared/decorators';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { UserRegisterRequestDto, UserRegisterResponseDto } from './dto';
-import { serialize } from 'class-transformer';
+import {
+  classToPlain,
+  serialize,
+  TransformClassToPlain,
+} from 'class-transformer';
 
 @Controller('auth')
 export class AuthController {
@@ -35,7 +39,7 @@ export class AuthController {
       const { user, ...rest } = await this.authService.register(dto);
       return {
         ...rest,
-        user: JSON.parse(serialize(new UserRegisterResponseDto(user))),
+        user: classToPlain(new UserRegisterResponseDto(user.toJSON())),
       };
     } catch (err) {
       //TODO(klikkn) implement errors handler
@@ -47,11 +51,17 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('/login')
+  @TransformClassToPlain()
   async login(@Request() req) {
-    const { user, ...rest } = await this.authService.login(req.user);
-    return {
-      ...rest,
-      user: JSON.parse(serialize(new UserRegisterResponseDto(user))),
-    };
+    try {
+      const { user, ...rest } = await this.authService.login(req.user);
+      return {
+        ...rest,
+        user: classToPlain(new UserRegisterResponseDto(user.toJSON())),
+      };
+    } catch (err) {
+      //TODO(klikkn) implement errors handler
+      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+    }
   }
 }

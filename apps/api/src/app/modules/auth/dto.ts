@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 
 export class UserRegisterRequestDto {
   constructor(partial: Partial<UserRegisterRequestDto>) {
@@ -14,12 +14,14 @@ export class UserRegisterRequestDto {
   password: string;
 }
 
+@Exclude()
 export class UserRegisterResponseDto {
   constructor(partial: Partial<UserRegisterResponseDto>) {
     Object.assign(this, partial);
   }
+
+  @Expose()
   email: string;
 
-  @Exclude()
   password: string;
 }

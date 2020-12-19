@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { UserSchema } from './user.schema';
+import { User, UserSchema } from './user.schema';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 
@@ -10,7 +10,7 @@ import { UsersController } from './users.controller';
   imports: [
     MongooseModule.forFeatureAsync([
       {
-        name: 'User',
+        name: User.name,
         useFactory: () => {
           const schema = UserSchema;
           schema.pre('save', function () {
