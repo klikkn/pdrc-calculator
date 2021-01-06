@@ -79,5 +79,17 @@ describe('Orders DTO', () => {
 
       await expect(target.transform(data, metadata)).rejects.toThrow();
     });
+
+    it(`error with wrong item, missed property`, async () => {
+      const data = { ...order };
+      data.items = [{ count: 1, value: 2, part: 3 } as any];
+      await expect(target.transform(data, metadata)).rejects.toThrow();
+    });
+
+    it(`error with wrong item, no properties`, async () => {
+      const data = { ...order };
+      data.items = [{} as any];
+      await expect(target.transform(data, metadata)).rejects.toThrow();
+    });
   });
 });
