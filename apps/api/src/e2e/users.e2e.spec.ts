@@ -49,6 +49,22 @@ describe('Users e2e', () => {
     await mongod.stop();
   });
 
+  it(`Create successfull`, async () => {
+    return request(app.getHttpServer())
+      .post(`/users`)
+      .set('Authorization', bearerToken)
+      .send(user)
+      .expect(function ({ body }) {
+        if (!body) throw new Error('Body is undefined');
+        if (body === undefined) throw new Error('User is undefined');
+        if (body.email === undefined)
+          throw new Error('User email is undefined');
+        if (body.password !== undefined)
+          throw new Error('User password should be undefined');
+      })
+      .expect(201);
+  });
+
   it(`Create error: email should be uniq`, async () => {
     await userModel.create(user);
     await request(app.getHttpServer())
@@ -56,6 +72,18 @@ describe('Users e2e', () => {
       .set('Authorization', bearerToken)
       .send(user)
       .expect(500);
+  });
+
+  it(`Update successfull`, async () => {
+    const newUser = await userModel.create(user);
+    await request(app.getHttpServer())
+      .put(`/users/${newUser.id}`)
+      .send({ email: 'user2@google.com' })
+      .set('Authorization', bearerToken)
+      .expect(({ body }) => {
+        if (Object.keys(body).length) throw new Error('Body should be empty');
+      })
+      .expect(200);
   });
 
   it(`Update error: email should be uniq`, async () => {

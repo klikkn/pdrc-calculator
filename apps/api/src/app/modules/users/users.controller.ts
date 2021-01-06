@@ -8,9 +8,15 @@ import {
   Param,
   HttpException,
   HttpStatus,
+  Res,
+  HttpCode,
 } from '@nestjs/common';
 
-import { UserCreateRequestDto, UserUpdateRequestDto } from './users.dto';
+import {
+  UserCreateRequestDto,
+  UserCreateResponseDto,
+  UserUpdateRequestDto,
+} from './users.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -23,18 +29,25 @@ export class UsersController {
   }
 
   @Get(':id')
-  getOne(@Param('id') id) {
-    return this.usersService.getOne(id);
+  async getOne(@Param('id') id) {
+    const user = await this.usersService.getOne(id);
+    return new UserCreateResponseDto(user.toJSON());
   }
 
   @Post()
-  createOne(@Body() dto: UserCreateRequestDto) {
-    return this.usersService.createOne(dto);
+  async createOne(@Body() dto: UserCreateRequestDto) {
+    const user = await this.usersService.createOne(dto);
+    return new UserCreateResponseDto(user.toJSON());
   }
 
   @Put(':id')
-  updateOne(@Param('id') id, @Body() dto: UserUpdateRequestDto) {
-    return this.usersService.updateOne(id, dto);
+  async updateOne(
+    @Res() res,
+    @Param('id') id,
+    @Body() dto: UserUpdateRequestDto
+  ) {
+    await this.usersService.updateOne(id, dto);
+    res.status(HttpStatus.OK).send();
   }
 
   @Delete(':id')
