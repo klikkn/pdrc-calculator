@@ -9,7 +9,6 @@ import {
   HttpException,
   HttpStatus,
   Res,
-  HttpCode,
 } from '@nestjs/common';
 
 import {
