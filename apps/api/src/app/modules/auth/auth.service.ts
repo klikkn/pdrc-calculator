@@ -1,10 +1,10 @@
 import * as bcrypt from 'bcryptjs';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { IUser } from '@pdrc/api-interfaces';
 
 import { UsersService } from '../users/users.service';
 import { UserDocument } from '../users/user.schema';
-import { UserRegisterRequestDto } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +17,7 @@ export class AuthService {
     username: string,
     password: string
   ): Promise<UserDocument> {
-    const user = await this.userService.findOne({ email: username });
+    const user = await this.userService.getOneByUsername(username);
     if (!user) return null;
 
     const validated = await bcrypt.compareSync(password, user.password);
@@ -32,8 +32,8 @@ export class AuthService {
     return { user, access_token: this.jwtService.sign(payload) };
   }
 
-  async register(dto: UserRegisterRequestDto) {
-    const user = await this.userService.create(dto);
+  async register(dto: IUser) {
+    const user = await this.userService.createOne(dto);
     return this.login(user);
   }
 }

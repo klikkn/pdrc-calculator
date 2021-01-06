@@ -2,11 +2,9 @@ import * as request from 'supertest';
 import { Model } from 'mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { AuthModule } from '../app/modules/auth/auth.module';
-import { UsersModule } from '../app/modules/users/users.module';
+import { AppModule } from '../app/app.module';
 import { User, UserDocument } from '../app/modules/users/user.schema';
 
 const user = {
@@ -14,7 +12,7 @@ const user = {
   password: 'password',
 };
 
-describe('Auth', () => {
+describe('Auth e2e', () => {
   let app: INestApplication;
   let mongod: MongoMemoryServer;
   let module: TestingModule;
@@ -22,14 +20,10 @@ describe('Auth', () => {
 
   beforeAll(async () => {
     mongod = new MongoMemoryServer();
-    module = await Test.createTestingModule({
-      imports: [
-        MongooseModule.forRootAsync({
-          useFactory: async () => ({ uri: await mongod.getUri() }),
-        }),
-        AuthModule,
-        UsersModule,
-      ],
+    process.env.DB_URL = await mongod.getUri();
+
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
     }).compile();
 
     app = module.createNestApplication();
@@ -59,7 +53,7 @@ describe('Auth', () => {
         if (body.user.email === undefined)
           throw new Error('User email is undefined');
         if (body.user.password !== undefined)
-          throw new Error('User email has to be undefined');
+          throw new Error('User password should be undefined');
       })
       .expect(200);
   });
@@ -83,8 +77,16 @@ describe('Auth', () => {
         if (body.user.email === undefined)
           throw new Error('User email is undefined');
         if (body.user.password !== undefined)
-          throw new Error('User email has to be undefined');
+          throw new Error('User password should be undefined');
       })
       .expect(200, done);
+  });
+
+  it(`Register error if user already exist in database`, async () => {
+    await userModel.create(user);
+    return request(app.getHttpServer())
+      .post('/auth/register')
+      .send(user)
+      .expect(400);
   });
 });

@@ -8,12 +8,12 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { validateOrReject } from 'class-validator';
+import { classToPlain } from 'class-transformer';
+
 import { Public } from '../../shared/decorators';
-import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { UserRegisterRequestDto, UserRegisterResponseDto } from './dto';
-import { classToPlain, TransformClassToPlain } from 'class-transformer';
+import { AuthService } from './auth.service';
+import { UserRegisterRequestDto, UserRegisterResponseDto } from './auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -31,7 +31,6 @@ export class AuthController {
     }
 
     try {
-      await validateOrReject(new UserRegisterRequestDto(dto));
       const { user, ...rest } = await this.authService.register(dto);
       return {
         ...rest,
@@ -47,7 +46,6 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('/login')
-  @TransformClassToPlain()
   async login(@Request() req) {
     try {
       const { user, ...rest } = await this.authService.login(req.user);

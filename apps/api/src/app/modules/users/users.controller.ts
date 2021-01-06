@@ -1,30 +1,45 @@
-import { Controller } from '@nestjs/common';
-import { Crud, CrudController } from '@nestjsx/crud';
-import { User } from './user.schema';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Delete,
+  Param,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+
+import { UserCreateRequestDto, UserUpdateRequestDto } from './users.dto';
 import { UsersService } from './users.service';
 
-@Crud({
-  model: {
-    type: User,
-  },
-  params: {
-    id: {
-      type: 'string',
-      primary: true,
-      field: '_id',
-    },
-  },
-  serialize: {
-    get: false,
-    getMany: false,
-    createMany: false,
-    create: false,
-    update: false,
-    replace: false,
-    delete: false,
-  },
-})
 @Controller('users')
-export class UsersController implements CrudController<User> {
-  constructor(public service: UsersService) {}
+export class UsersController {
+  constructor(private usersService: UsersService) {}
+
+  @Get()
+  getMany() {
+    return this.usersService.getMany();
+  }
+
+  @Get(':id')
+  getOne(@Param('id') id) {
+    return this.usersService.getOne(id);
+  }
+
+  @Post()
+  createOne(@Body() dto: UserCreateRequestDto) {
+    return this.usersService.createOne(dto);
+  }
+
+  @Put(':id')
+  updateOne(@Param('id') id, @Body() dto: UserUpdateRequestDto) {
+    return this.usersService.updateOne(id, dto);
+  }
+
+  @Delete(':id')
+  async deleteOne(@Param('id') id) {
+    const order = await this.usersService.deleteOne(id);
+    if (!order) throw new HttpException({}, HttpStatus.NOT_FOUND);
+  }
 }
