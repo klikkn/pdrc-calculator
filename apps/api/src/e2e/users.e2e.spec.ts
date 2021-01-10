@@ -3,6 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
+import { Roles } from '@pdrc/api-interfaces';
+
 import { User, UserDocument } from '../app/modules/users/user.schema';
 import { Model } from 'mongoose';
 import { AppModule } from '../app/app.module';
@@ -10,6 +12,7 @@ import { AppModule } from '../app/app.module';
 const user = {
   email: 'user1@google.com',
   password: 'password',
+  role: Roles.User,
 };
 
 describe('Users e2e', () => {
@@ -78,10 +81,13 @@ describe('Users e2e', () => {
     const newUser = await userModel.create(user);
     await request(app.getHttpServer())
       .put(`/users/${newUser.id}`)
-      .send({ email: 'user2@google.com' })
+      .send({ ...user, email: 'user2@google.com', password: undefined })
       .set('Authorization', bearerToken)
       .expect(({ body }) => {
-        if (Object.keys(body).length) throw new Error('Body should be empty');
+        if (Object.keys(body).length) {
+          console.log(body);
+          throw new Error('Body should be empty');
+        }
       })
       .expect(200);
   });
@@ -96,7 +102,7 @@ describe('Users e2e', () => {
     await request(app.getHttpServer())
       .put(`/users/${newUser2.id}`)
       .set('Authorization', bearerToken)
-      .send({ email: user.email })
+      .send({ ...user, password: undefined })
       .expect(500);
   });
 

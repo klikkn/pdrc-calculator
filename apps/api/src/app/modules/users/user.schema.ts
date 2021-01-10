@@ -1,6 +1,6 @@
 import { Document } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IPriceTable, IUser, IUserOptions } from '@pdrc/api-interfaces';
+import { IPriceTable, IUser, IUserOptions, Role } from '@pdrc/api-interfaces';
 
 @Schema()
 export class PriceTable implements IPriceTable {
@@ -39,6 +39,9 @@ export class User implements IUser {
 
   @Prop()
   options?: UserOptions;
+
+  @Prop({ required: true })
+  role: Role;
 }
 
 export type UserDocument = User & Document;

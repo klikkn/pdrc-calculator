@@ -1,3 +1,5 @@
+import { Role } from './api-types';
+
 export interface Message {
   message: string;
 }
@@ -6,6 +8,7 @@ export interface IUser {
   email: string;
   options?: IUserOptions;
   password: string;
+  role: Role;
 }
 
 export interface IUserOptions {

@@ -1,8 +1,8 @@
 import {
   ArrayNotEmpty,
-  IsDefined,
   IsEmail,
   IsEmpty,
+  IsIn,
   IsNotEmpty,
   IsNotEmptyObject,
   IsOptional,
@@ -11,7 +11,13 @@ import {
   ValidationArguments,
 } from 'class-validator';
 import { Exclude, Expose, Type } from 'class-transformer';
-import { IPriceTable, IUser, IUserOptions } from '@pdrc/api-interfaces';
+import {
+  IPriceTable,
+  IUser,
+  IUserOptions,
+  Role,
+  Roles,
+} from '@pdrc/api-interfaces';
 
 import { UserDocument } from './user.schema';
 
@@ -56,11 +62,15 @@ export class UserCreateRequestDto implements Omit<IUser, 'options'> {
   @IsEmail()
   email: string;
 
+  @IsEmpty()
+  options?: UserOptionsDto;
+
   @IsNotEmpty()
   password: string;
 
-  @IsEmpty()
-  options?: UserOptionsDto;
+  @IsNotEmpty()
+  @IsIn([Roles.Admin, Roles.User])
+  role: Role;
 }
 
 export class UserUpdateRequestDto extends UserCreateRequestDto
@@ -88,10 +98,13 @@ export class UserCreateResponseDto
   @Expose()
   email: string;
 
+  @Expose()
+  options?: UserOptionsDto;
+
   password: string;
 
   @Expose()
-  options?: UserOptionsDto;
+  role: Role;
 }
 
 function PriceTableArray() {

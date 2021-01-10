@@ -4,12 +4,20 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
+import { Roles } from '@pdrc/api-interfaces';
+
 import { AppModule } from '../app/app.module';
 import { User, UserDocument } from '../app/modules/users/user.schema';
 
 const user = {
   email: 'user1@google.com',
   password: 'password',
+};
+
+const userDocument = {
+  email: 'user1@google.com',
+  password: 'password',
+  role: Roles.User,
 };
 
 describe('Auth e2e', () => {
@@ -41,7 +49,7 @@ describe('Auth e2e', () => {
   });
 
   it(`Successfull login by email`, async () => {
-    await userModel.create(user);
+    await userModel.create(userDocument);
     return request(app.getHttpServer())
       .post('/auth/login')
       .send({ username: user.email, password: user.password })
@@ -83,7 +91,7 @@ describe('Auth e2e', () => {
   });
 
   it(`Register error if user already exist in database`, async () => {
-    await userModel.create(user);
+    await userModel.create(userDocument);
     return request(app.getHttpServer())
       .post('/auth/register')
       .send(user)

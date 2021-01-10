@@ -14,6 +14,7 @@ import { Public } from '../../shared/decorators';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
 import { UserRegisterRequestDto, UserRegisterResponseDto } from './auth.dto';
+import { Roles } from '@pdrc/api-interfaces';
 
 @Controller('auth')
 export class AuthController {
@@ -31,7 +32,11 @@ export class AuthController {
     }
 
     try {
-      const { user, ...rest } = await this.authService.register(dto);
+      const { user, ...rest } = await this.authService.register({
+        ...dto,
+        role: Roles.User,
+      });
+
       return {
         ...rest,
         user: classToPlain(new UserRegisterResponseDto(user.toJSON())),
