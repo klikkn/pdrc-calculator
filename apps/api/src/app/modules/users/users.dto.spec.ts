@@ -7,11 +7,7 @@ import { clone } from 'ramda';
 
 import { IUserOptions, Roles } from '@pdrc/api-interfaces';
 import { defaultUserOptions } from '../../shared/consts';
-import {
-  UserCreateRequestDto,
-  UserUpdateRequestDto,
-  UserOptionsDto,
-} from './users.dto';
+import { UserCreateRequestDto, UserOptionsDto } from './users.dto';
 
 describe('Users DTO', () => {
   const target: ValidationPipe = new ValidationPipe();
@@ -73,6 +69,18 @@ describe('Users DTO', () => {
       options: defaultUserOptions,
     };
 
+    it('success with new password', async () => {
+      await expect(target.transform(user, metadata)).rejects.toThrow(
+        BadRequestException
+      );
+    });
+
+    it('success without password', async () => {
+      await expect(
+        target.transform({ password: 'password' }, metadata)
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it.each<string>(['', 'user1', 'user1@google', 'user1@google.'])(
       'error with invalid email: %s',
       async (email: string) => {
@@ -87,12 +95,6 @@ describe('Users DTO', () => {
       await expect(
         target.transform({ _id: '222' }, metadata)
       ).rejects.toThrow();
-    });
-
-    it('error with new password', async () => {
-      await expect(
-        target.transform({ password: 'password' }, metadata)
-      ).rejects.toThrow(BadRequestException);
     });
 
     it('error with new role', async () => {

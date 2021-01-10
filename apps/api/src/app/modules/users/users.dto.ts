@@ -76,7 +76,7 @@ export class UserCreateRequestDto implements IUser {
 
 export class UserUpdateRequestDto extends UserCreateRequestDto
   implements IUser {
-  @IsEmpty()
+  @IsOptional()
   password: string;
 
   @ValidateIf((o) => o.role === Roles.User)
