@@ -32,15 +32,11 @@ export class AuthController {
     }
 
     try {
-      const { user, ...rest } = await this.authService.register({
+      const access_token = await this.authService.register({
         ...dto,
         role: Roles.User,
       });
-
-      return {
-        ...rest,
-        user: classToPlain(new UserRegisterResponseDto(user.toJSON())),
-      };
+      return { access_token };
     } catch (err) {
       //TODO(klikkn) implement errors handler
       throw new HttpException(err, HttpStatus.BAD_REQUEST);
@@ -53,11 +49,8 @@ export class AuthController {
   @Post('/login')
   async login(@Request() req) {
     try {
-      const { user, ...rest } = await this.authService.login(req.user);
-      return {
-        ...rest,
-        user: classToPlain(new UserRegisterResponseDto(user.toJSON())),
-      };
+      const access_token = await this.authService.login(req.user);
+      return { access_token };
     } catch (err) {
       //TODO(klikkn) implement errors handler
       throw new HttpException(err, HttpStatus.BAD_REQUEST);

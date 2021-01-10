@@ -40,6 +40,7 @@ describe('Users e2e', () => {
         email: 'user11@google.com',
         password: 'password',
       });
+
     bearerToken = `Bearer ${body.access_token}`;
   });
 
