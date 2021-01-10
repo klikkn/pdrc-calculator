@@ -8,12 +8,12 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { validateOrReject } from 'class-validator';
+
 import { Public } from '../../shared/decorators';
-import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { UserRegisterRequestDto, UserRegisterResponseDto } from './dto';
-import { classToPlain, TransformClassToPlain } from 'class-transformer';
+import { AuthService } from './auth.service';
+import { UserRegisterRequestDto } from './auth.dto';
+import { Roles } from '@pdrc/api-interfaces';
 
 @Controller('auth')
 export class AuthController {
@@ -31,12 +31,11 @@ export class AuthController {
     }
 
     try {
-      await validateOrReject(new UserRegisterRequestDto(dto));
-      const { user, ...rest } = await this.authService.register(dto);
-      return {
-        ...rest,
-        user: classToPlain(new UserRegisterResponseDto(user.toJSON())),
-      };
+      const access_token = await this.authService.register({
+        ...dto,
+        role: Roles.User,
+      });
+      return { access_token };
     } catch (err) {
       //TODO(klikkn) implement errors handler
       throw new HttpException(err, HttpStatus.BAD_REQUEST);
@@ -47,14 +46,10 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('/login')
-  @TransformClassToPlain()
   async login(@Request() req) {
     try {
-      const { user, ...rest } = await this.authService.login(req.user);
-      return {
-        ...rest,
-        user: classToPlain(new UserRegisterResponseDto(user.toJSON())),
-      };
+      const access_token = await this.authService.login(req.user);
+      return { access_token };
     } catch (err) {
       //TODO(klikkn) implement errors handler
       throw new HttpException(err, HttpStatus.BAD_REQUEST);

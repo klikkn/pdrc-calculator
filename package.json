@@ -47,19 +47,20 @@
     "@nestjs/passport": "^7.1.5",
     "@nestjs/platform-express": "^7.0.0",
     "@nestjs/serve-static": "^2.1.3",
-    "@nestjsx/crud": "^4.6.2",
     "@nrwl/angular": "10.3.1",
     "@types/passport-jwt": "^3.0.3",
     "@types/passport-local": "^1.0.33",
+    "@types/ramda": "^0.27.34",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
     "mongoose": "^5.11.4",
-    "nest-crud-mongoose": "0.0.5",
+    "nestjs-mongoose-crud": "^2.0.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "pg": "^8.5.1",
+    "ramda": "^0.27.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "~6.5.5",
     "zone.js": "^0.10.2"
@@ -107,7 +108,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "pre-push": "npm run affected:test"
+      "pre-push": "npm run affected:test && npm run affected:build"
     }
   },
   "lint-staged": {
