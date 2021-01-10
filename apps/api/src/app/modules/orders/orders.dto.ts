@@ -7,7 +7,7 @@ import {
 import { IOrder, IOrderItem } from '@pdrc/api-interfaces';
 import { Type } from 'class-transformer';
 
-export class OrderCreateRequestDto implements Omit<IOrder, 'ownerId'> {
+export class OrderCreateRequestDto implements IOrder {
   constructor(partial: Partial<OrderCreateRequestDto>) {
     Object.assign(this, partial);
   }
@@ -40,16 +40,20 @@ export class OrderCreateRequestDto implements Omit<IOrder, 'ownerId'> {
 
 class OrderItemDto implements IOrderItem {
   @IsNotEmpty()
+  column: string;
+
+  @IsNotEmpty()
   count: number;
 
   @IsNotEmpty()
-  value: string;
-
-  @IsNotEmpty()
   part: string;
+  row: string;
 
   @IsNotEmpty()
-  unitPrice: number;
+  table: string;
+
+  @IsNotEmpty()
+  value: number;
 }
 
 export class OrderUpdateRequestDto extends OrderCreateRequestDto {}

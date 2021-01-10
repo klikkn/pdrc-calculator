@@ -1,5 +1,4 @@
 import { ArgumentMetadata, ValidationPipe } from '@nestjs/common';
-import { User } from '../users/user.schema';
 import { UserRegisterRequestDto } from './auth.dto';
 
 describe('Auth DTO', () => {
@@ -20,9 +19,9 @@ describe('Auth DTO', () => {
       }
     );
 
-    it.each<keyof User>(['email', 'password'])(
+    it.each<keyof UserRegisterRequestDto>(['email', 'password'])(
       'error without %s',
-      async (key: keyof User) => {
+      async (key: keyof UserRegisterRequestDto) => {
         const data = { email: 'user1@google.ru', password: 'password' };
         delete data[key];
         await expect(target.transform(data, metadata)).rejects.toThrow();

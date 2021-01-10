@@ -4,20 +4,19 @@ export interface Message {
 
 export interface IUser {
   email: string;
-  // options: IUserOptions;
+  options?: IUserOptions;
   password: string;
 }
 
 export interface IUserOptions {
-  parts: string[];
+  columns: string[];
+  columnsTitle: string;
+  rowsTitle: string;
   tables: IPriceTable[];
 }
 
 export interface IPriceTable {
-  columns: string[];
-  columnsTitle: string;
   rows: string[];
-  rowsTitle: string;
   title: string;
   values: number[][];
 }
@@ -34,8 +33,10 @@ export interface IOrder {
 }
 
 export interface IOrderItem {
+  column: string;
   count: number;
-  value: string;
   part: string;
-  unitPrice: number;
+  row: string;
+  table: string;
+  value: number;
 }

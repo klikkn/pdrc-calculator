@@ -5,6 +5,7 @@ import { IUser } from '@pdrc/api-interfaces';
 
 import { UsersService } from '../users/users.service';
 import { UserDocument } from '../users/user.schema';
+import { UserRegisterRequestDto } from './auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -32,7 +33,7 @@ export class AuthService {
     return { user, access_token: this.jwtService.sign(payload) };
   }
 
-  async register(dto: IUser) {
+  async register(dto: UserRegisterRequestDto) {
     const user = await this.userService.createOne(dto);
     return this.login(user);
   }

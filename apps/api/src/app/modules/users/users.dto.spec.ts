@@ -1,5 +1,14 @@
-import { ArgumentMetadata, ValidationPipe } from '@nestjs/common';
-import { UserCreateRequestDto, UserUpdateRequestDto } from './users.dto';
+import {
+  ArgumentMetadata,
+  BadRequestException,
+  ValidationPipe,
+} from '@nestjs/common';
+import { IUserOptions } from '@pdrc/api-interfaces';
+import {
+  UserCreateRequestDto,
+  UserUpdateRequestDto,
+  UserOptionsDto,
+} from './users.dto';
 
 describe('Users DTO', () => {
   const target: ValidationPipe = new ValidationPipe();
@@ -11,30 +20,67 @@ describe('Users DTO', () => {
   };
 
   describe('Create request data', () => {
+    const user = { email: 'user1@google.ru', password: 'password' };
+
+    it('success', async () => {
+      await expect(target.transform(user, metadata)).toBeTruthy();
+    });
+
     it.each<string>(['', 'user1', 'user1@google', 'user1@google.'])(
       'error with invalid email: %s',
       async (email: string) => {
-        const data = { email, password: 'password' };
-        await expect(target.transform(data, metadata)).rejects.toThrow();
+        const data = { ...user, email };
+        await expect(target.transform(data, metadata)).rejects.toThrow(
+          BadRequestException
+        );
       }
     );
 
     it.each<keyof UserCreateRequestDto>(['email', 'password'])(
       'error without %s',
       async (key: keyof UserCreateRequestDto) => {
-        const data = { email: 'user1@google.ru', password: 'password' };
+        const data = { ...user };
         delete data[key];
-        await expect(target.transform(data, metadata)).rejects.toThrow();
+        await expect(target.transform(data, metadata)).rejects.toThrow(
+          BadRequestException
+        );
       }
     );
+
+    it('error with options', async () => {
+      await expect(
+        target.transform({ ...user, options: {} }, metadata)
+      ).rejects.toThrow(BadRequestException);
+    });
   });
 
   describe('Update request data', () => {
+    const options = {
+      columns: ['A', 'B', 'C'],
+      columnsTitle: 'Classes',
+      rowsTitle: 'Squares',
+      tables: [
+        {
+          rows: ['1-2', '2-3', '3-4'],
+          title: 'Table 1',
+          values: [
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
+          ],
+        },
+      ],
+    };
+
+    const user = { email: 'user1@google.ru', password: 'password', options };
+
     it.each<string>(['', 'user1', 'user1@google', 'user1@google.'])(
       'error with invalid email: %s',
       async (email: string) => {
-        const data = { email, password: 'password' };
-        await expect(target.transform(data, metadata)).rejects.toThrow();
+        const data = { ...user, email };
+        await expect(target.transform(data, metadata)).rejects.toThrow(
+          BadRequestException
+        );
       }
     );
 
@@ -47,16 +93,95 @@ describe('Users DTO', () => {
     it('error with new password', async () => {
       await expect(
         target.transform({ password: 'password' }, metadata)
-      ).rejects.toThrow();
+      ).rejects.toThrow(BadRequestException);
     });
 
-    it.each<keyof UserUpdateRequestDto>(['email'])(
+    it.each<keyof UserUpdateRequestDto>(['email', 'options'])(
       'error without %s',
       async (key: keyof UserUpdateRequestDto) => {
         const data = { email: 'user1@google.ru' };
         delete data[key];
-        await expect(target.transform(data, metadata)).rejects.toThrow();
+        await expect(target.transform(data, metadata)).rejects.toThrow(
+          BadRequestException
+        );
       }
     );
+  });
+
+  describe('User options validation', () => {
+    const metadata: ArgumentMetadata = {
+      type: 'body',
+      metatype: UserOptionsDto,
+      data: '',
+    };
+
+    let data: IUserOptions;
+
+    beforeEach(() => {
+      data = {
+        columns: ['A', 'B', 'C'],
+        columnsTitle: 'Classes',
+        rowsTitle: 'Squares',
+        tables: [
+          {
+            rows: ['1-2', '2-3', '3-4'],
+            title: 'Table 1',
+            values: [
+              [1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 9],
+            ],
+          },
+        ],
+      };
+    });
+
+    it.each<keyof UserOptionsDto>([
+      'columns',
+      'columnsTitle',
+      'rowsTitle',
+      'tables',
+    ])('error without %s', async (key: keyof UserOptionsDto) => {
+      const copy = { ...data };
+      delete data[key];
+      await expect(target.transform(copy, metadata)).rejects.toThrow(
+        BadRequestException
+      );
+    });
+
+    it('error with table without title', async () => {
+      data.tables = undefined;
+      await expect(target.transform(data, metadata)).rejects.toThrow(
+        BadRequestException
+      );
+    });
+
+    it('error with empty columns', async () => {
+      data.columns = undefined;
+      await expect(target.transform(data, metadata)).rejects.toThrow(TypeError);
+    });
+
+    it('error with empty table rows', async () => {
+      data.tables[0].rows = undefined;
+      await expect(target.transform(data, metadata)).rejects.toThrow(TypeError);
+    });
+
+    it('error with incorrect table values number', async () => {
+      data.tables[0].values = [
+        [1, 2],
+        [1, 2, 3],
+        [4, 5, 6],
+      ];
+      await expect(target.transform(data, metadata)).rejects.toThrow(
+        BadRequestException
+      );
+    });
+
+    it('error with empty options', async () => {
+      data = {} as any;
+      await expect(target.transform(data, metadata)).rejects.toThrow(
+        BadRequestException
+      );
+    });
   });
 });
