@@ -40,7 +40,7 @@ export class User implements IUser {
   @Prop()
   options?: UserOptions;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   role: Role;
 }
 
