@@ -7,6 +7,7 @@ import {
   IsNotEmptyObject,
   IsOptional,
   registerDecorator,
+  ValidateIf,
   ValidateNested,
   ValidationArguments,
 } from 'class-validator';
@@ -50,7 +51,7 @@ export class UserOptionsDto implements IUserOptions {
   tables: PriceTableDto[];
 }
 
-export class UserCreateRequestDto implements Omit<IUser, 'options'> {
+export class UserCreateRequestDto implements IUser {
   constructor(partial: Partial<UserCreateRequestDto>) {
     Object.assign(this, partial);
   }
@@ -78,11 +79,16 @@ export class UserUpdateRequestDto extends UserCreateRequestDto
   @IsEmpty()
   password: string;
 
+  @ValidateIf((o) => o.role === Roles.User)
+  @IsNotEmpty()
   @IsOptional()
   @IsNotEmptyObject()
   @ValidateNested()
   @Type(() => UserOptionsDto)
   options?: UserOptionsDto;
+
+  @IsEmpty()
+  role: Role;
 }
 
 @Exclude()

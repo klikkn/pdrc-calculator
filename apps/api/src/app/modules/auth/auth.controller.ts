@@ -8,12 +8,11 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { classToPlain } from 'class-transformer';
 
 import { Public } from '../../shared/decorators';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
-import { UserRegisterRequestDto, UserRegisterResponseDto } from './auth.dto';
+import { UserRegisterRequestDto } from './auth.dto';
 import { Roles } from '@pdrc/api-interfaces';
 
 @Controller('auth')

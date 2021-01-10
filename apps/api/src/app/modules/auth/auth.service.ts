@@ -1,7 +1,6 @@
 import * as bcrypt from 'bcryptjs';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { IUser } from '@pdrc/api-interfaces';
 
 import { UsersService } from '../users/users.service';
 import { UserDocument } from '../users/user.schema';

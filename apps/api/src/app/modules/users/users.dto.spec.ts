@@ -3,29 +3,15 @@ import {
   BadRequestException,
   ValidationPipe,
 } from '@nestjs/common';
+import { clone } from 'ramda';
+
 import { IUserOptions, Roles } from '@pdrc/api-interfaces';
+import { defaultUserOptions } from '../../shared/consts';
 import {
   UserCreateRequestDto,
   UserUpdateRequestDto,
   UserOptionsDto,
 } from './users.dto';
-
-const options = {
-  columns: ['A', 'B', 'C'],
-  columnsTitle: 'Classes',
-  rowsTitle: 'Squares',
-  tables: [
-    {
-      rows: ['1-2', '2-3', '3-4'],
-      title: 'Table 1',
-      values: [
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 8, 9],
-      ],
-    },
-  ],
-};
 
 describe('Users DTO', () => {
   const target: ValidationPipe = new ValidationPipe();
@@ -76,13 +62,16 @@ describe('Users DTO', () => {
 
     it('error with options', async () => {
       await expect(
-        target.transform({ ...user, options }, metadata)
+        target.transform({ ...user, options: defaultUserOptions }, metadata)
       ).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('Update request data', () => {
-    const user = { email: 'user1@google.ru', password: 'password', options };
+    const user = {
+      email: 'user1@google.ru',
+      options: defaultUserOptions,
+    };
 
     it.each<string>(['', 'user1', 'user1@google', 'user1@google.'])(
       'error with invalid email: %s',
@@ -106,16 +95,11 @@ describe('Users DTO', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it.each<keyof UserUpdateRequestDto>(['email', 'options', 'role'])(
-      'error without %s',
-      async (key: keyof UserUpdateRequestDto) => {
-        const data = { ...user };
-        delete data[key];
-        await expect(target.transform(data, metadata)).rejects.toThrow(
-          BadRequestException
-        );
-      }
-    );
+    it('error with new role', async () => {
+      await expect(
+        target.transform({ user, role: Roles.User }, metadata)
+      ).rejects.toThrow(BadRequestException);
+    });
   });
 
   describe('User options validation', () => {
@@ -128,22 +112,11 @@ describe('Users DTO', () => {
     let data: IUserOptions;
 
     beforeEach(() => {
-      data = {
-        columns: ['A', 'B', 'C'],
-        columnsTitle: 'Classes',
-        rowsTitle: 'Squares',
-        tables: [
-          {
-            rows: ['1-2', '2-3', '3-4'],
-            title: 'Table 1',
-            values: [
-              [1, 2, 3],
-              [4, 5, 6],
-              [7, 8, 9],
-            ],
-          },
-        ],
-      };
+      data = clone(defaultUserOptions);
+    });
+
+    it('success', async () => {
+      await expect(target.transform(defaultUserOptions, metadata)).toBeTruthy();
     });
 
     it.each<keyof UserOptionsDto>([

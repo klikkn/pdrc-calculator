@@ -11,6 +11,7 @@ import {
   Res,
 } from '@nestjs/common';
 
+import { defaultUserOptions } from '../../shared/consts';
 import {
   UserCreateRequestDto,
   UserCreateResponseDto,
@@ -36,7 +37,10 @@ export class UsersController {
   @Post()
   async createOne(@Body() dto: UserCreateRequestDto) {
     //TODO: implement user options
-    const user = await this.usersService.createOne(dto);
+    const user = await this.usersService.createOne({
+      ...dto,
+      options: defaultUserOptions,
+    });
     return new UserCreateResponseDto(user.toJSON());
   }
 

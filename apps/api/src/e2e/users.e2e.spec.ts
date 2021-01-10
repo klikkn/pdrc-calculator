@@ -2,17 +2,25 @@ import * as request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { clone } from 'ramda';
 
 import { Roles } from '@pdrc/api-interfaces';
 
 import { User, UserDocument } from '../app/modules/users/user.schema';
 import { Model } from 'mongoose';
 import { AppModule } from '../app/app.module';
+import { defaultUserOptions } from '../app/shared/consts';
 
 const user = {
   email: 'user1@google.com',
   password: 'password',
   role: Roles.User,
+};
+
+const userToUpdate = {
+  ...user,
+  password: undefined,
+  role: undefined,
 };
 
 describe('Users e2e', () => {
@@ -78,11 +86,16 @@ describe('Users e2e', () => {
       .expect(500);
   });
 
-  it(`Update successfull`, async () => {
-    const newUser = await userModel.create(user);
+  it(`admin email successfull update`, async () => {
+    const newUser = await userModel.create({
+      ...user,
+      email: 'admin@google.com',
+      role: Roles.Admin,
+    });
+    const newEmail = 'admin2@google.com';
     await request(app.getHttpServer())
       .put(`/users/${newUser.id}`)
-      .send({ ...user, email: 'user2@google.com', password: undefined })
+      .send({ email: newEmail })
       .set('Authorization', bearerToken)
       .expect(({ body }) => {
         if (Object.keys(body).length) {
@@ -91,19 +104,75 @@ describe('Users e2e', () => {
         }
       })
       .expect(200);
+
+    const updatedUser = await userModel.findById(newUser._id);
+    expect(updatedUser.email).toEqual(newEmail);
+  });
+
+  it(`user email successfull update`, async () => {
+    const newUser = await userModel.create({
+      ...user,
+      options: defaultUserOptions,
+    });
+    const newEmail = 'user2@google.com';
+    await request(app.getHttpServer())
+      .put(`/users/${newUser.id}`)
+      .send({ email: newEmail })
+      .set('Authorization', bearerToken)
+      .expect(({ body }) => {
+        if (Object.keys(body).length) {
+          console.log(body);
+          throw new Error('Body should be empty');
+        }
+      })
+      .expect(200);
+
+    const updatedUser = await userModel.findById(newUser._id);
+    expect(updatedUser.email).toEqual(newEmail);
+    expect(updatedUser.options).toEqual(defaultUserOptions);
+  });
+
+  it(`user options successfull update`, async () => {
+    const newOptions = {
+      ...clone(defaultUserOptions),
+      columns: ['AA', 'BB', 'CC'],
+    };
+    const newUser = await userModel.create({
+      ...user,
+      options: defaultUserOptions,
+    });
+
+    await request(app.getHttpServer())
+      .put(`/users/${newUser.id}`)
+      .send({
+        ...userToUpdate,
+        options: newOptions,
+      })
+      .set('Authorization', bearerToken)
+      .expect(({ body }) => {
+        if (Object.keys(body).length) {
+          console.log(body);
+          throw new Error('Body should be empty');
+        }
+      })
+      .expect(200);
+
+    const updatedUser = await userModel.findById(newUser._id);
+    expect(updatedUser.email).toEqual(user.email);
+    expect(updatedUser.options).toEqual(newOptions);
   });
 
   it(`Update error: email should be uniq`, async () => {
     await userModel.create(user);
-    const newUser2 = await userModel.create({
+    const newUser = await userModel.create({
       ...user,
       email: 'user2@gmail.com',
     });
 
     await request(app.getHttpServer())
-      .put(`/users/${newUser2.id}`)
+      .put(`/users/${newUser.id}`)
       .set('Authorization', bearerToken)
-      .send({ ...user, password: undefined })
+      .send({ ...userToUpdate })
       .expect(500);
   });
 
