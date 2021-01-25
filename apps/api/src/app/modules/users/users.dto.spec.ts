@@ -6,12 +6,8 @@ import {
 import { clone } from 'ramda';
 
 import { IUserOptions, Roles } from '@pdrc/api-interfaces';
-import { defaultUserOptions } from '../../shared/consts';
-import {
-  UserCreateRequestDto,
-  UserUpdateRequestDto,
-  UserOptionsDto,
-} from './users.dto';
+import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
+import { UserCreateRequestDto, UserOptionsDto } from './users.dto';
 
 describe('Users DTO', () => {
   const target: ValidationPipe = new ValidationPipe();
@@ -62,7 +58,7 @@ describe('Users DTO', () => {
 
     it('error with options', async () => {
       await expect(
-        target.transform({ ...user, options: defaultUserOptions }, metadata)
+        target.transform({ ...user, options: DEFAULT_USER_OPTIONS }, metadata)
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -70,8 +66,20 @@ describe('Users DTO', () => {
   describe('Update request data', () => {
     const user = {
       email: 'user1@google.ru',
-      options: defaultUserOptions,
+      options: DEFAULT_USER_OPTIONS,
     };
+
+    it('success with new password', async () => {
+      await expect(target.transform(user, metadata)).rejects.toThrow(
+        BadRequestException
+      );
+    });
+
+    it('success without password', async () => {
+      await expect(
+        target.transform({ password: 'password' }, metadata)
+      ).rejects.toThrow(BadRequestException);
+    });
 
     it.each<string>(['', 'user1', 'user1@google', 'user1@google.'])(
       'error with invalid email: %s',
@@ -87,12 +95,6 @@ describe('Users DTO', () => {
       await expect(
         target.transform({ _id: '222' }, metadata)
       ).rejects.toThrow();
-    });
-
-    it('error with new password', async () => {
-      await expect(
-        target.transform({ password: 'password' }, metadata)
-      ).rejects.toThrow(BadRequestException);
     });
 
     it('error with new role', async () => {
@@ -112,11 +114,13 @@ describe('Users DTO', () => {
     let data: IUserOptions;
 
     beforeEach(() => {
-      data = clone(defaultUserOptions);
+      data = clone(DEFAULT_USER_OPTIONS);
     });
 
     it('success', async () => {
-      await expect(target.transform(defaultUserOptions, metadata)).toBeTruthy();
+      await expect(
+        target.transform(DEFAULT_USER_OPTIONS, metadata)
+      ).toBeTruthy();
     });
 
     it.each<keyof UserOptionsDto>([

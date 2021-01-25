@@ -54,10 +54,7 @@ describe('Auth e2e', () => {
       .post('/auth/login')
       .send({ username: user.email, password: user.password })
       .expect(function ({ body }) {
-        if (!body) {
-          console.log(body);
-          throw new Error('Body is undefined');
-        }
+        if (!body) throw new Error('Body is undefined');
       })
       .expect(200);
   });
@@ -74,10 +71,7 @@ describe('Auth e2e', () => {
       .post('/auth/register')
       .send(user)
       .expect(function ({ body }) {
-        if (!body) {
-          console.log(body);
-          throw new Error('Body is undefined');
-        }
+        if (!body) throw new Error('Body is undefined');
       })
       .expect(200, done);
   });

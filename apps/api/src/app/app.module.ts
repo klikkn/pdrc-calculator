@@ -14,6 +14,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { OrdersModule } from './modules/orders/orders.module';
+import { MeModule } from './modules/me/me.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { OrdersModule } from './modules/orders/orders.module';
     UsersModule,
     AuthModule,
     OrdersModule,
+    MeModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'pdrc'),
       exclude: ['/api*'],

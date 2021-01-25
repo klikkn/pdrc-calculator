@@ -1,4 +1,4 @@
-export const defaultUserOptions = {
+export const DEFAULT_USER_OPTIONS = {
   columns: ['A', 'B', 'C'],
   columnsTitle: 'Classes',
   rowsTitle: 'Squares',

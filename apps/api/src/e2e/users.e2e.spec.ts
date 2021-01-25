@@ -9,19 +9,15 @@ import { Roles } from '@pdrc/api-interfaces';
 import { User, UserDocument } from '../app/modules/users/user.schema';
 import { Model } from 'mongoose';
 import { AppModule } from '../app/app.module';
-import { defaultUserOptions } from '../app/shared/consts';
+import { DEFAULT_USER_OPTIONS } from '../app/shared/consts';
 
 const user = {
   email: 'user1@google.com',
   password: 'password',
   role: Roles.User,
 };
-
-const userToUpdate = {
-  ...user,
-  password: undefined,
-  role: undefined,
-};
+const admin = { ...user, role: Roles.Admin };
+const userToUpdate = { email: user.email, options: DEFAULT_USER_OPTIONS };
 
 describe('Users e2e', () => {
   let app: INestApplication;
@@ -61,7 +57,7 @@ describe('Users e2e', () => {
     await mongod.stop();
   });
 
-  it(`Create successfull`, async () => {
+  it(`User create successfull`, async () => {
     return request(app.getHttpServer())
       .post(`/users`)
       .set('Authorization', bearerToken)
@@ -73,6 +69,26 @@ describe('Users e2e', () => {
           throw new Error('User email is undefined');
         if (body.password !== undefined)
           throw new Error('User password should be undefined');
+        if (body.options === undefined)
+          throw new Error('User should have default options');
+      })
+      .expect(201);
+  });
+
+  it(`Admin create successfull`, async () => {
+    return request(app.getHttpServer())
+      .post(`/users`)
+      .set('Authorization', bearerToken)
+      .send(admin)
+      .expect(function ({ body }) {
+        if (!body) throw new Error('Body is undefined');
+        if (body === undefined) throw new Error('User is undefined');
+        if (body.email === undefined)
+          throw new Error('User email is undefined');
+        if (body.password !== undefined)
+          throw new Error('User password should be undefined');
+        if (body.options !== undefined)
+          throw new Error('Admin should not have default options');
       })
       .expect(201);
   });
@@ -112,7 +128,7 @@ describe('Users e2e', () => {
   it(`user email successfull update`, async () => {
     const newUser = await userModel.create({
       ...user,
-      options: defaultUserOptions,
+      options: DEFAULT_USER_OPTIONS,
     });
     const newEmail = 'user2@google.com';
     await request(app.getHttpServer())
@@ -129,17 +145,17 @@ describe('Users e2e', () => {
 
     const updatedUser = await userModel.findById(newUser._id);
     expect(updatedUser.email).toEqual(newEmail);
-    expect(updatedUser.options).toEqual(defaultUserOptions);
+    expect(updatedUser.options).toEqual(DEFAULT_USER_OPTIONS);
   });
 
   it(`user options successfull update`, async () => {
     const newOptions = {
-      ...clone(defaultUserOptions),
+      ...clone(DEFAULT_USER_OPTIONS),
       columns: ['AA', 'BB', 'CC'],
     };
     const newUser = await userModel.create({
       ...user,
-      options: defaultUserOptions,
+      options: DEFAULT_USER_OPTIONS,
     });
 
     await request(app.getHttpServer())

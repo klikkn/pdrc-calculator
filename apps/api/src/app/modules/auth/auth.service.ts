@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { UserDocument } from '../users/user.schema';
 import { UserRegisterRequestDto } from './auth.dto';
+import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
 
 @Injectable()
 export class AuthService {
@@ -32,7 +33,10 @@ export class AuthService {
   }
 
   async register(dto: UserRegisterRequestDto) {
-    const user = await this.userService.createOne(dto);
+    const user = await this.userService.createOne({
+      ...dto,
+      options: DEFAULT_USER_OPTIONS,
+    });
     return this.login(user);
   }
 }

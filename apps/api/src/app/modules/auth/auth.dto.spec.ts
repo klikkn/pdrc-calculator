@@ -21,6 +21,10 @@ describe('Auth DTO', () => {
   };
 
   describe('Register request data', () => {
+    it('success ', async () => {
+      await expect(target.transform(user, metadata)).toBeTruthy();
+    });
+
     it.each<string>(['', 'user1', 'user1@google', 'user1@google.'])(
       'error with invalid email: %s',
       async (email: string) => {
