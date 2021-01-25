@@ -10,11 +10,12 @@ import {
   HttpStatus,
   Res,
 } from '@nestjs/common';
+import { Roles } from '@pdrc/api-interfaces';
 
-import { defaultUserOptions } from '../../shared/consts';
+import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
 import {
   UserCreateRequestDto,
-  UserCreateResponseDto,
+  UserResponseDto,
   UserUpdateRequestDto,
 } from './users.dto';
 import { UsersService } from './users.service';
@@ -31,7 +32,7 @@ export class UsersController {
   @Get(':id')
   async getOne(@Param('id') id) {
     const user = await this.usersService.getOne(id);
-    return new UserCreateResponseDto(user.toJSON());
+    return new UserResponseDto(user.toJSON());
   }
 
   @Post()
@@ -39,9 +40,9 @@ export class UsersController {
     //TODO: implement user options
     const user = await this.usersService.createOne({
       ...dto,
-      options: defaultUserOptions,
+      options: dto.role === Roles.User ? DEFAULT_USER_OPTIONS : undefined,
     });
-    return new UserCreateResponseDto(user.toJSON());
+    return new UserResponseDto(user.toJSON());
   }
 
   @Put(':id')

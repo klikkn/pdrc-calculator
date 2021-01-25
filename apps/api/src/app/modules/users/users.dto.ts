@@ -1,10 +1,11 @@
 import {
   ArrayNotEmpty,
+  Equals,
+  IsDefined,
   IsEmail,
   IsEmpty,
   IsIn,
   IsNotEmpty,
-  IsNotEmptyObject,
   IsOptional,
   registerDecorator,
   ValidateIf,
@@ -21,6 +22,7 @@ import {
 } from '@pdrc/api-interfaces';
 
 import { UserDocument } from './user.schema';
+import { isNullOrUndefined, isUndefined } from 'util';
 
 class PriceTableDto implements IPriceTable {
   @ArrayNotEmpty()
@@ -56,20 +58,20 @@ export class UserCreateRequestDto implements IUser {
     Object.assign(this, partial);
   }
 
-  @IsEmpty()
+  @Equals(undefined)
   _id?: string;
 
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
-  @IsEmpty()
+  @Equals(undefined)
   options?: UserOptionsDto;
 
   @IsNotEmpty()
   password: string;
 
-  @IsNotEmpty()
+  @IsDefined()
   @IsIn([Roles.Admin, Roles.User])
   role: Role;
 }
@@ -77,24 +79,25 @@ export class UserCreateRequestDto implements IUser {
 export class UserUpdateRequestDto extends UserCreateRequestDto
   implements IUser {
   @IsOptional()
+  @IsNotEmpty()
   password: string;
 
   @ValidateIf((o) => o.role === Roles.User)
-  @IsNotEmpty()
   @IsOptional()
-  @IsNotEmptyObject()
   @ValidateNested()
   @Type(() => UserOptionsDto)
-  options?: UserOptionsDto;
+  options: UserOptionsDto;
 
-  @IsEmpty()
+  //user and admin have different workflows, we cannot update a role. Only create a new user.
+  @IsOptional()
+  @Equals(undefined)
   role: Role;
 }
 
 @Exclude()
-export class UserCreateResponseDto
+export class UserResponseDto
   implements Pick<UserDocument, '_id' | 'email' | 'password' | 'options'> {
-  constructor(partial: Partial<UserCreateResponseDto>) {
+  constructor(partial: Partial<UserResponseDto>) {
     Object.assign(this, partial);
   }
 

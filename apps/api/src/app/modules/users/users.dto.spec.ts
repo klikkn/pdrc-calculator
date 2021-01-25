@@ -6,7 +6,7 @@ import {
 import { clone } from 'ramda';
 
 import { IUserOptions, Roles } from '@pdrc/api-interfaces';
-import { defaultUserOptions } from '../../shared/consts';
+import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
 import { UserCreateRequestDto, UserOptionsDto } from './users.dto';
 
 describe('Users DTO', () => {
@@ -58,7 +58,7 @@ describe('Users DTO', () => {
 
     it('error with options', async () => {
       await expect(
-        target.transform({ ...user, options: defaultUserOptions }, metadata)
+        target.transform({ ...user, options: DEFAULT_USER_OPTIONS }, metadata)
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -66,7 +66,7 @@ describe('Users DTO', () => {
   describe('Update request data', () => {
     const user = {
       email: 'user1@google.ru',
-      options: defaultUserOptions,
+      options: DEFAULT_USER_OPTIONS,
     };
 
     it('success with new password', async () => {
@@ -114,11 +114,13 @@ describe('Users DTO', () => {
     let data: IUserOptions;
 
     beforeEach(() => {
-      data = clone(defaultUserOptions);
+      data = clone(DEFAULT_USER_OPTIONS);
     });
 
     it('success', async () => {
-      await expect(target.transform(defaultUserOptions, metadata)).toBeTruthy();
+      await expect(
+        target.transform(DEFAULT_USER_OPTIONS, metadata)
+      ).toBeTruthy();
     });
 
     it.each<keyof UserOptionsDto>([
