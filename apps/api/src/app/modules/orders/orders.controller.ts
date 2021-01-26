@@ -8,6 +8,7 @@ import {
   Param,
   HttpException,
   HttpStatus,
+  Res,
 } from '@nestjs/common';
 
 import { OrderCreateRequestDto, OrderUpdateRequestDto } from './orders.dto';
@@ -18,23 +19,31 @@ export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
   @Get()
-  getMany() {
-    return this.ordersService.getMany();
+  async getMany() {
+    const orders = await this.ordersService.getMany();
+    return orders.map((o) => o.toJSON());
   }
 
   @Get(':id')
-  getOne(@Param('id') id) {
-    return this.ordersService.getOne(id);
+  async getOne(@Param('id') id) {
+    const order = await this.ordersService.getOne(id);
+    return order.toJSON();
   }
 
   @Post()
-  createOne(@Body() dto: OrderCreateRequestDto) {
-    return this.ordersService.createOne(dto);
+  async createOne(@Body() dto: OrderCreateRequestDto) {
+    const order = await this.ordersService.createOne(dto);
+    return order.toJSON();
   }
 
   @Put(':id')
-  updateOne(@Param('id') id, @Body() dto: OrderUpdateRequestDto) {
-    return this.ordersService.updateOne(id, dto);
+  async updateOne(
+    @Res() res,
+    @Param('id') id,
+    @Body() dto: OrderUpdateRequestDto
+  ) {
+    await this.ordersService.updateOne(id, dto);
+    res.status(HttpStatus.OK).send();
   }
 
   @Delete(':id')

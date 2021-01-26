@@ -24,7 +24,7 @@ describe('Me DTO', () => {
       password: 'new one',
     };
 
-    it('success ', async () => {
+    it('success', async () => {
       await expect(target.transform(user, metadata)).toBeTruthy();
     });
 
@@ -35,6 +35,15 @@ describe('Me DTO', () => {
         await expect(target.transform(data, metadata)).rejects.toThrow(
           BadRequestException
         );
+      }
+    );
+
+    it.each<keyof MeUpdateRequestDto>(['email', 'password', 'role', 'options'])(
+      'success without optional param - %s',
+      async (key: keyof MeUpdateRequestDto) => {
+        const data = { ...user };
+        delete data[key];
+        await expect(target.transform(data, metadata)).toBeTruthy();
       }
     );
 
