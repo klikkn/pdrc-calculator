@@ -3,7 +3,6 @@ import {
   Equals,
   IsDefined,
   IsEmail,
-  IsEmpty,
   IsIn,
   IsNotEmpty,
   IsOptional,
@@ -22,9 +21,8 @@ import {
 } from '@pdrc/api-interfaces';
 
 import { UserDocument } from './user.schema';
-import { isNullOrUndefined, isUndefined } from 'util';
 
-class PriceTableDto implements IPriceTable {
+export class PriceTableDto implements IPriceTable {
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
   rows: string[];
@@ -125,10 +123,12 @@ function PriceTableArray() {
       constraints: [],
       validator: {
         validate(value, args: ValidationArguments) {
-          if (!value) return false;
+          if (value === undefined) return false;
           const obj = args.object as IUserOptions;
 
           return value.every(({ values, rows }) => {
+            if (values === undefined || rows === undefined) return false;
+
             const expectedValuesCount = rows.length * obj.columns.length;
             return values.every((v) => v.length === expectedValuesCount);
           });

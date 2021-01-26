@@ -21,19 +21,9 @@ describe('Auth DTO', () => {
   };
 
   describe('Register request data', () => {
-    it('success ', async () => {
+    it('success with email and password', async () => {
       await expect(target.transform(user, metadata)).toBeTruthy();
     });
-
-    it.each<string>(['', 'user1', 'user1@google', 'user1@google.'])(
-      'error with invalid email: %s',
-      async (email: string) => {
-        const data = { ...user, email };
-        await expect(target.transform(data, metadata)).rejects.toThrow(
-          BadRequestException
-        );
-      }
-    );
 
     it.each<keyof UserRegisterRequestDto>(['email', 'password'])(
       'error without %s',
@@ -46,13 +36,23 @@ describe('Auth DTO', () => {
       }
     );
 
+    it.each<string>(['', 'user1', 'user1@google', 'user1@google.'])(
+      'error with invalid email: %s',
+      async (email: string) => {
+        const data = { ...user, email };
+        await expect(target.transform(data, metadata)).rejects.toThrow(
+          BadRequestException
+        );
+      }
+    );
+
     it('error with options', async () => {
       await expect(
         target.transform({ ...user, options: {} }, metadata)
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('error with any role', async () => {
+    it('error with role', async () => {
       await expect(
         target.transform({ ...user, role: Roles.User }, metadata)
       ).rejects.toThrow(BadRequestException);

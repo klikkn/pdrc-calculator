@@ -70,9 +70,9 @@ describe('Me e2e', () => {
       })
       .expect(200);
 
-    const updatedUser = await userModel.find();
-    expect(updatedUser[0].email).toEqual(newEmail);
-    expect(updatedUser[0].options).toEqual(DEFAULT_USER_OPTIONS);
+    const users = await userModel.find();
+    expect(users[0].email).toEqual(newEmail);
+    expect(users[0].options).toEqual(DEFAULT_USER_OPTIONS);
   });
 
   it(`options successfull update`, async () => {
@@ -96,9 +96,9 @@ describe('Me e2e', () => {
       })
       .expect(200);
 
-    const updatedUser = await userModel.find();
-    expect(updatedUser[0].email).toEqual(user.email);
-    expect(updatedUser[0].options).toEqual(newOptions);
+    const users = await userModel.find();
+    expect(users[0].email).toEqual(user.email);
+    expect(users[0].options).toEqual(newOptions);
   });
 
   it(`Update error: email should be uniq`, async () => {
