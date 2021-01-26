@@ -9,12 +9,16 @@ import {
   HttpException,
   HttpStatus,
   Res,
+  UseGuards,
 } from '@nestjs/common';
+import { Roles } from '@pdrc/api-interfaces';
+import { RolesGuard } from '../../shared/guards/auth.guard';
 
 import { OrderCreateRequestDto, OrderUpdateRequestDto } from './orders.dto';
 import { OrdersService } from './orders.service';
 
 @Controller('orders')
+@UseGuards(new RolesGuard([Roles.Admin]))
 export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 

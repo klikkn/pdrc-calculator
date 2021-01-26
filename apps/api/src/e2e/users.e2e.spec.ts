@@ -11,12 +11,18 @@ import { Model } from 'mongoose';
 import { AppModule } from '../app/app.module';
 import { DEFAULT_USER_OPTIONS } from '../app/shared/consts';
 
+const admin = {
+  email: 'admin@google.com',
+  password: 'password',
+  role: Roles.Admin,
+};
+
 const user = {
   email: 'user1@google.com',
   password: 'password',
   role: Roles.User,
 };
-const admin = { ...user, role: Roles.Admin };
+
 const userToUpdate = { email: user.email, options: DEFAULT_USER_OPTIONS };
 
 describe('Users e2e', () => {
@@ -38,13 +44,10 @@ describe('Users e2e', () => {
     userModel = module.get(`${User.name}Model`);
     await app.init();
 
+    await userModel.create(admin);
     const { body } = await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({
-        email: 'user11@google.com',
-        password: 'password',
-      });
-
+      .post('/auth/login')
+      .send({ username: admin.email, password: admin.password });
     bearerToken = `Bearer ${body.access_token}`;
   });
 
@@ -79,7 +82,7 @@ describe('Users e2e', () => {
     return request(app.getHttpServer())
       .post(`/users`)
       .set('Authorization', bearerToken)
-      .send(admin)
+      .send({ ...user, role: Roles.Admin })
       .expect(function ({ body }) {
         if (!body) throw new Error('Body is undefined');
         if (body === undefined) throw new Error('User is undefined');
@@ -105,7 +108,6 @@ describe('Users e2e', () => {
   it(`admin email successfull update`, async () => {
     const newUser = await userModel.create({
       ...user,
-      email: 'admin@google.com',
       role: Roles.Admin,
     });
     const newEmail = 'admin2@google.com';
