@@ -112,8 +112,14 @@
     }
   },
   "lint-staged": {
+    "*": [
+      "npm run format:write",
+      "git add"
+    ],
     "*.{js,ts}": [
-      "npm run format:write"
+      "npm run affected:lint",
+      "npm run format:write",
+      "git add"
     ]
   }
 }
