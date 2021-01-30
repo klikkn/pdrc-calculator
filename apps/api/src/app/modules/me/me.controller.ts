@@ -11,6 +11,7 @@ import {
   Post,
   HttpException,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 import { OrdersService } from '../orders/orders.service';
 import { UsersService } from '../users/users.service';
@@ -22,6 +23,7 @@ import {
 } from './me.dto';
 
 @Controller('me')
+@ApiBearerAuth()
 export class MeController {
   constructor(
     private usersService: UsersService,
