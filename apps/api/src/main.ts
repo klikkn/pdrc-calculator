@@ -8,7 +8,6 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as helmet from 'helmet';
 import * as rateLimit from 'express-rate-limit';
-import * as csurf from 'csurf';
 
 import { AppModule } from './app/app.module';
 
@@ -30,7 +29,6 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   app.enableCors();
-  app.use(csurf());
   app.use(helmet());
   app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 
