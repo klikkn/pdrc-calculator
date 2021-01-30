@@ -11,6 +11,8 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
 import { Roles } from '@pdrc/api-interfaces';
 
 import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
@@ -23,6 +25,7 @@ import {
 import { UsersService } from './users.service';
 
 @Controller('users')
+@ApiBearerAuth()
 @UseGuards(new RolesGuard([Roles.Admin]))
 export class UsersController {
   constructor(private usersService: UsersService) {}
