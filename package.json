@@ -113,8 +113,7 @@
   },
   "lint-staged": {
     "*": [
-      "npm run format:write",
-      "git add"
+      "npm run format:write"
     ],
     "*.{js,ts}": [
       "npm run affected:lint",
