@@ -68,11 +68,12 @@ describe('Users CRUD e2e', () => {
     it(`can get all users`, async () => {
       await userModel.create(testUser);
       await request(app.getHttpServer())
-        .get(`/orders`)
+        .get(`/users`)
         .set('Authorization', bearerToken)
         .expect(function ({ body }) {
           if (!body) throw new Error('Body is undefined');
-          if (!body.length) throw new Error('Body should have one order');
+          if (!body.length)
+            throw new Error('Body should have at least one user');
         })
         .expect(200);
     });
@@ -80,7 +81,7 @@ describe('Users CRUD e2e', () => {
     it(`can get one user`, async () => {
       const newUser = await userModel.create(testUser);
       await request(app.getHttpServer())
-        .get(`/orders/${newUser._id}`)
+        .get(`/users/${newUser._id}`)
         .set('Authorization', bearerToken)
         .expect(function ({ body }) {
           if (!body) throw new Error('Body is undefined');
