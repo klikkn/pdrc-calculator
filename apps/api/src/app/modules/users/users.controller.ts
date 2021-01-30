@@ -9,10 +9,12 @@ import {
   HttpException,
   HttpStatus,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { Roles } from '@pdrc/api-interfaces';
 
 import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
+import { RolesGuard } from '../../shared/guards/auth.guard';
 import {
   UserCreateRequestDto,
   UserResponseDto,
@@ -21,6 +23,7 @@ import {
 import { UsersService } from './users.service';
 
 @Controller('users')
+@UseGuards(new RolesGuard([Roles.Admin]))
 export class UsersController {
   constructor(private usersService: UsersService) {}
 

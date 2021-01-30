@@ -4,20 +4,52 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-import { Roles } from '@pdrc/api-interfaces';
+import { IOrder, Roles } from '@pdrc/api-interfaces';
 import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
-import { MeUpdateRequestDto } from './me.dto';
+import {
+  MeUpdateOrderRequestDto,
+  MeUpdateRequestDto,
+  MeCreateOrderRequestDto,
+} from './me.dto';
+
+const order: IOrder = {
+  carModel: 'A5',
+  carProducer: 'Audi',
+  category: '1',
+  clientName: 'Ivan',
+  clientPhone: '89998887766',
+  date: new Date(),
+  items: [
+    {
+      column: 'A',
+      count: 1,
+      part: 'right door',
+      row: '1-2',
+      table: 'Complicated',
+      value: 200,
+    },
+    {
+      column: 'A',
+      count: 1,
+      part: 'right door',
+      row: '1-2',
+      table: 'Simple',
+      value: 200,
+    },
+  ],
+  ownerId: '1',
+};
 
 describe('Me DTO', () => {
   const target: ValidationPipe = new ValidationPipe();
 
-  const metadata: ArgumentMetadata = {
-    type: 'body',
-    metatype: MeUpdateRequestDto,
-    data: '',
-  };
+  describe('Update personal data', () => {
+    const metadata: ArgumentMetadata = {
+      type: 'body',
+      metatype: MeUpdateRequestDto,
+      data: '',
+    };
 
-  describe('Update request data', () => {
     const user = {
       email: 'user1@google.ru',
       options: DEFAULT_USER_OPTIONS,
@@ -58,6 +90,30 @@ describe('Me DTO', () => {
       await expect(target.transform(data, metadata)).rejects.toThrow(
         BadRequestException
       );
+    });
+  });
+
+  describe('Create order data', () => {
+    const metadata: ArgumentMetadata = {
+      type: 'body',
+      metatype: MeCreateOrderRequestDto,
+      data: '',
+    };
+
+    it(`error with new ownerId`, async () => {
+      await expect(target.transform(order, metadata)).rejects.toThrow();
+    });
+  });
+
+  describe('Update order data', () => {
+    const metadata: ArgumentMetadata = {
+      type: 'body',
+      metatype: MeUpdateOrderRequestDto,
+      data: '',
+    };
+
+    it(`error with new ownerId`, async () => {
+      await expect(target.transform(order, metadata)).rejects.toThrow();
     });
   });
 });

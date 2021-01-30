@@ -10,12 +10,6 @@ import { AppModule } from '../app/app.module';
 import { Order, OrderDocument } from '../app/modules/orders/order.schema';
 import { User, UserDocument } from '../app/modules/users/user.schema';
 
-const user = {
-  email: 'user1@google.com',
-  password: 'password',
-  role: Roles.User,
-};
-
 const order: Omit<IOrder, 'ownerId'> = {
   carModel: 'A5',
   carProducer: 'Audi',
@@ -49,7 +43,7 @@ describe('Orders e2e', () => {
   let module: TestingModule;
   let orderModel: Model<OrderDocument>;
   let userModel: Model<UserDocument>;
-  let ownerId: string;
+  let regularUser: UserDocument;
   let bearerToken: string;
 
   beforeAll(async () => {
@@ -65,19 +59,11 @@ describe('Orders e2e', () => {
     userModel = module.get(`${User.name}Model`);
     await app.init();
 
-    ownerId = (await userModel.create(user))._id;
-    const { body } = await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({
-        email: 'user11@google.com',
-        password: 'password',
-      });
-
-    bearerToken = `Bearer ${body.access_token}`;
-  });
-
-  beforeEach(async () => {
-    await orderModel.deleteMany();
+    regularUser = await userModel.create({
+      email: 'user1@google.com',
+      password: 'password',
+      role: Roles.User,
+    });
   });
 
   afterAll(async () => {
@@ -85,74 +71,153 @@ describe('Orders e2e', () => {
     await mongod.stop();
   });
 
-  it(`Order get many successfull`, async () => {
-    await orderModel.create({ ...order, ownerId });
+  describe('Role: admin', () => {
+    beforeAll(async () => {
+      const admin = {
+        email: 'admin@google.com',
+        password: 'password',
+        role: Roles.Admin,
+      };
 
-    return request(app.getHttpServer())
-      .get(`/orders`)
-      .set('Authorization', bearerToken)
-      .send({ ...order, ownerId })
-      .expect(function ({ body }) {
-        if (!body) throw new Error('Body is undefined');
-        if (!body.length) throw new Error('Body should have one order');
-      })
-      .expect(200);
+      await userModel.create(admin);
+      const { body } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: admin.email, password: admin.password });
+      bearerToken = `Bearer ${body.access_token}`;
+    });
+
+    beforeEach(async () => {
+      await orderModel.deleteMany();
+    });
+
+    it(`can get all orders`, async () => {
+      await orderModel.create({ ...order, ownerId: regularUser._id });
+      await request(app.getHttpServer())
+        .get(`/orders`)
+        .set('Authorization', bearerToken)
+        .expect(function ({ body }) {
+          if (!body) throw new Error('Body is undefined');
+          if (!body.length) throw new Error('Body should have one order');
+        })
+        .expect(200);
+    });
+
+    it(`can get one order`, async () => {
+      const newOrder = await orderModel.create({
+        ...order,
+        ownerId: regularUser._id,
+      });
+
+      await request(app.getHttpServer())
+        .get(`/orders/${newOrder._id}`)
+        .set('Authorization', bearerToken)
+        .expect(function ({ body }) {
+          if (!body) throw new Error('Body is undefined');
+          if (!body._id) throw new Error('id is undefined');
+        })
+        .expect(200);
+    });
+
+    it(`can create order`, () => {
+      return request(app.getHttpServer())
+        .post(`/orders`)
+        .set('Authorization', bearerToken)
+        .send({ ...order, ownerId: regularUser._id })
+        .expect(function ({ body }) {
+          if (!body) throw new Error('Body is undefined');
+        })
+        .expect(201);
+    });
+
+    it(`can update order`, async () => {
+      const newOrder = await orderModel.create({
+        ...order,
+        ownerId: regularUser._id,
+      });
+
+      await request(app.getHttpServer())
+        .put(`/orders/${newOrder._id}`)
+        .set('Authorization', bearerToken)
+        .send({ ...order, ownerId: regularUser._id, category: '2' })
+        .expect(function ({ body }) {
+          if (!body) throw new Error('Body is undefined');
+        })
+        .expect(200);
+    });
+
+    it(`can delete order`, async () => {
+      const newOrder = await orderModel.create({
+        ...order,
+        ownerId: regularUser._id,
+      });
+
+      await request(app.getHttpServer())
+        .delete(`/orders/${newOrder._id}`)
+        .set('Authorization', bearerToken)
+        .expect(200);
+
+      const orders = await orderModel.find();
+      expect(orders).toHaveLength(0);
+    });
+
+    it(`delete error: non-existing order`, () => {
+      return request(app.getHttpServer())
+        .delete(`/orders/111111111111111111111111`)
+        .set('Authorization', bearerToken)
+        .expect(404);
+    });
   });
 
-  it(`Order get one successfull`, async () => {
-    const newOrder = await orderModel.create({ ...order, ownerId });
+  describe('Role: user', () => {
+    beforeAll(async () => {
+      const user = {
+        email: 'user@google.com',
+        password: 'password',
+        role: Roles.User,
+      };
 
-    return request(app.getHttpServer())
-      .get(`/orders/${newOrder._id}`)
-      .set('Authorization', bearerToken)
-      .send({ ...order, ownerId })
-      .expect(function ({ body }) {
-        if (!body) throw new Error('Body is undefined');
-        if (!body._id) throw new Error('id is undefined');
-      })
-      .expect(200);
-  });
+      await userModel.create(user);
+      const { body } = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: user.email, password: user.password });
+      bearerToken = `Bearer ${body.access_token}`;
+    });
 
-  it(`Order create successfull`, async () => {
-    return request(app.getHttpServer())
-      .post(`/orders`)
-      .set('Authorization', bearerToken)
-      .send({ ...order, ownerId })
-      .expect(function ({ body }) {
-        if (!body) throw new Error('Body is undefined');
-      })
-      .expect(201);
-  });
+    it(`get all error`, async () => {
+      return request(app.getHttpServer())
+        .get(`/orders`)
+        .set('Authorization', bearerToken)
+        .expect(403);
+    });
 
-  it(`Order update successfull`, async () => {
-    const newOrder = await orderModel.create({ ...order, ownerId });
+    it(`get one error`, async () => {
+      return request(app.getHttpServer())
+        .get(`/orders/1`)
+        .set('Authorization', bearerToken)
+        .expect(403);
+    });
 
-    return request(app.getHttpServer())
-      .put(`/orders/${newOrder._id}`)
-      .set('Authorization', bearerToken)
-      .send({ ...order, ownerId, category: '2' })
-      .expect(function ({ body }) {
-        if (!body) throw new Error('Body is undefined');
-      })
-      .expect(200);
-  });
+    it(`create error`, () => {
+      return request(app.getHttpServer())
+        .post(`/orders`)
+        .set('Authorization', bearerToken)
+        .send({})
+        .expect(403);
+    });
 
-  it(`Delete success`, async () => {
-    const newOrder = await orderModel.create({ ...order, ownerId });
+    it(`update error`, () => {
+      return request(app.getHttpServer())
+        .put(`/orders/1`)
+        .send({})
+        .set('Authorization', bearerToken)
+        .expect(403);
+    });
 
-    await request(app.getHttpServer())
-      .delete(`/orders/${newOrder._id}`)
-      .set('Authorization', bearerToken)
-      .expect(200);
-
-    const orders = await orderModel.find();
-    expect(orders).toHaveLength(0);
-  });
-
-  it(`Delete error: non-existing order`, async () => {
-    await request(app.getHttpServer())
-      .delete(`/orders/111111111111111111111111`)
-      .set('Authorization', bearerToken)
-      .expect(404);
+    it(`delete error`, () => {
+      return request(app.getHttpServer())
+        .delete(`/orders/1`)
+        .set('Authorization', bearerToken)
+        .expect(403);
+    });
   });
 });
