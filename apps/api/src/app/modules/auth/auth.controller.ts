@@ -23,7 +23,7 @@ export class AuthController {
   @HttpCode(200)
   @Post('/register')
   async register(@Body() dto: UserRegisterRequestDto) {
-    if (!process.env.REGISTER_ENABLED) {
+    if (process.env.REGISTER_ENABLED === 'false') {
       throw new HttpException(
         'Registration is disabled',
         HttpStatus.BAD_REQUEST
