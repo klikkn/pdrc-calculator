@@ -6,15 +6,18 @@ import { clone } from 'ramda';
 
 import { Roles } from '@pdrc/api-interfaces';
 
+import { MOCK_ORDER } from './mocks';
 import { User, UserDocument } from '../app/modules/users/user.schema';
 import { Model } from 'mongoose';
 import { AppModule } from '../app/app.module';
 import { DEFAULT_USER_OPTIONS } from '../app/shared/consts';
+import { Order, OrderDocument } from '../app/modules/orders/order.schema';
 
 const user = {
   email: 'user1@google.com',
   password: 'password',
   role: Roles.User,
+  options: DEFAULT_USER_OPTIONS,
 };
 
 const userToUpdate = {
@@ -27,6 +30,8 @@ describe('Me e2e', () => {
   let mongod: MongoMemoryServer;
   let module: TestingModule;
   let userModel: Model<UserDocument>;
+  let orderModel: Model<OrderDocument>;
+  let loggedUser: UserDocument;
   let bearerToken: string;
 
   beforeAll(async () => {
@@ -39,16 +44,18 @@ describe('Me e2e', () => {
 
     app = module.createNestApplication();
     userModel = module.get(`${User.name}Model`);
+    orderModel = module.get(`${Order.name}Model`);
     await app.init();
 
+    loggedUser = await userModel.create({ ...user, role: Roles.Admin });
     const { body } = await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({
-        email: user.email,
-        password: user.password,
-      });
-
+      .post('/auth/login')
+      .send({ username: user.email, password: user.password });
     bearerToken = `Bearer ${body.access_token}`;
+  });
+
+  beforeEach(async () => {
+    await orderModel.deleteMany();
   });
 
   afterAll(async () => {
@@ -113,5 +120,111 @@ describe('Me e2e', () => {
       .set('Authorization', bearerToken)
       .send({ ...userToUpdate, email: newUser.email })
       .expect(500);
+  });
+
+  it(`can get only own orders`, async () => {
+    await orderModel.create({ ...MOCK_ORDER, ownerId: loggedUser._id });
+    await orderModel.create({ ...MOCK_ORDER, ownerId: '1' });
+
+    await request(app.getHttpServer())
+      .get(`/me/orders`)
+      .set('Authorization', bearerToken)
+      .expect(function ({ body }) {
+        if (!body) throw new Error('Body is undefined');
+        if (body.length > 1) throw new Error('Body should have one order');
+      })
+      .expect(200);
+  });
+
+  it(`can get one own order`, async () => {
+    const newOrder = await orderModel.create({
+      ...MOCK_ORDER,
+      ownerId: loggedUser._id,
+    });
+
+    await request(app.getHttpServer())
+      .get(`/me/orders/${newOrder._id}`)
+      .set('Authorization', bearerToken)
+      .expect(function ({ body }) {
+        if (!body) throw new Error('Body is undefined');
+        if (!body._id) throw new Error('id is undefined');
+      })
+      .expect(200);
+  });
+
+  it(`cannot get one another's order`, async () => {
+    const newOrder = await orderModel.create({ ...MOCK_ORDER, ownerId: '1' });
+    await request(app.getHttpServer())
+      .get(`/me/orders/${newOrder._id}`)
+      .set('Authorization', bearerToken)
+      .expect(404);
+  });
+
+  it(`can create order`, () => {
+    return request(app.getHttpServer())
+      .post(`/me/orders`)
+      .set('Authorization', bearerToken)
+      .send({ ...MOCK_ORDER })
+      .expect(function ({ body }) {
+        if (!body) throw new Error('Body is undefined');
+        if (body.ownerId != loggedUser._id)
+          throw new Error('Logged user should be an owner');
+      })
+      .expect(201);
+  });
+
+  it(`can update own order`, async () => {
+    const newOrder = await orderModel.create({
+      ...MOCK_ORDER,
+      ownerId: loggedUser._id,
+    });
+
+    await request(app.getHttpServer())
+      .put(`/me/orders/${newOrder._id}`)
+      .set('Authorization', bearerToken)
+      .send({ ...MOCK_ORDER })
+      .expect(function ({ body }) {
+        if (!body) throw new Error('Body is undefined');
+      })
+      .expect(200);
+  });
+
+  it(`cannot update another's order`, async () => {
+    const newOrder = await orderModel.create({ ...MOCK_ORDER, ownerId: '1' });
+    await request(app.getHttpServer())
+      .put(`/me/orders/${newOrder._id}`)
+      .set('Authorization', bearerToken)
+      .send({ ...MOCK_ORDER })
+      .expect(404);
+  });
+
+  it(`can delete own order`, async () => {
+    const newOrder = await orderModel.create({
+      ...MOCK_ORDER,
+      ownerId: loggedUser._id,
+    });
+
+    await request(app.getHttpServer())
+      .delete(`/me/orders/${newOrder._id}`)
+      .set('Authorization', bearerToken)
+      .expect(200);
+
+    const orders = await orderModel.find();
+    expect(orders).toHaveLength(0);
+  });
+
+  it(`cannot delete another's order`, async () => {
+    const newOrder = await orderModel.create({ ...MOCK_ORDER, ownerId: '1' });
+    await request(app.getHttpServer())
+      .delete(`/me/orders/${newOrder._id}`)
+      .set('Authorization', bearerToken)
+      .expect(404);
+  });
+
+  it(`delete error: non-existing order`, () => {
+    return request(app.getHttpServer())
+      .delete(`/me/orders/111111111111111111111111`)
+      .set('Authorization', bearerToken)
+      .expect(404);
   });
 });
