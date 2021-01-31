@@ -9,11 +9,13 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 
+import { Roles } from '@pdrc/api-interfaces';
+import { ApiBody } from '@nestjs/swagger';
+
 import { Public } from '../../shared/decorators';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
-import { UserRegisterRequestDto } from './auth.dto';
-import { Roles } from '@pdrc/api-interfaces';
+import { UserRegisterRequestDto, UserLoginDto } from './auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -46,6 +48,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('/login')
+  @ApiBody({ type: UserLoginDto })
   async login(@Request() req) {
     try {
       const access_token = await this.authService.login(req.user);
