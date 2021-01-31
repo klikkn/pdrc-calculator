@@ -11,7 +11,9 @@ import {
   ValidateNested,
   ValidationArguments,
 } from 'class-validator';
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Exclude, Expose, Type, Transform } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+
 import {
   IPriceTable,
   IUser,
@@ -21,7 +23,6 @@ import {
 } from '@pdrc/api-interfaces';
 
 import { UserDocument } from './user.schema';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class PriceTableDto implements IPriceTable {
   @ApiProperty()
@@ -51,7 +52,7 @@ export class UserOptionsDto implements IUserOptions {
   @IsNotEmpty()
   rowsTitle: string;
 
-  @ApiProperty({ type: () => PriceTableDto })
+  @ApiProperty({ type: () => [PriceTableDto] })
   @ArrayNotEmpty()
   @PriceTableArray()
   @ValidateNested({ each: true })
@@ -112,26 +113,20 @@ export class UserUpdateRequestDto extends UserCreateRequestDto
   role: Role;
 }
 
-@Exclude()
-export class UserResponseDto
-  implements Pick<UserDocument, '_id' | 'email' | 'password' | 'options'> {
-  constructor(partial: Partial<UserResponseDto>) {
+export class UserResponseDto {
+  constructor(partial: Partial<UserDocument>) {
     Object.assign(this, partial);
   }
 
   @Expose()
+  @Transform((value) => value.toString(), { toPlainOnly: true })
   _id: string;
 
-  @Expose()
-  email: string;
-
-  @Expose()
-  options?: UserOptionsDto;
-
+  @Exclude()
   password: string;
 
-  @Expose()
-  role: Role;
+  @Exclude()
+  __v: string;
 }
 
 function PriceTableArray() {

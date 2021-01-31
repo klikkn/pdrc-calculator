@@ -4,9 +4,12 @@ import {
   IsNotEmpty,
   ValidateNested,
 } from 'class-validator';
-import { IOrder, IOrderItem } from '@pdrc/api-interfaces';
-import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude, Transform, Type } from 'class-transformer';
+
+import { IOrder, IOrderItem } from '@pdrc/api-interfaces';
+
+import { OrderDocument } from './order.schema';
 
 export class OrderCreateRequestDto implements IOrder {
   constructor(partial: Partial<OrderCreateRequestDto>) {
@@ -36,7 +39,7 @@ export class OrderCreateRequestDto implements IOrder {
   @IsNotEmpty()
   date: Date;
 
-  @ApiProperty({ type: () => OrderItemDto })
+  @ApiProperty({ type: () => [OrderItemDto] })
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => OrderItemDto)
@@ -71,3 +74,18 @@ class OrderItemDto implements IOrderItem {
 }
 
 export class OrderUpdateRequestDto extends OrderCreateRequestDto {}
+
+export class OrderResponseDto {
+  constructor(partial: Partial<OrderDocument>) {
+    Object.assign(this, partial);
+  }
+
+  @Transform((value) => value.toString(), { toPlainOnly: true })
+  _id: string;
+
+  @Exclude()
+  __v: string;
+
+  @Transform((value) => value.toString(), { toPlainOnly: true })
+  ownerId: string;
+}

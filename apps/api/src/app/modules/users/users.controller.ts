@@ -31,12 +31,13 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
-  getMany() {
-    return this.usersService.getMany();
+  async getMany() {
+    const users = await this.usersService.getMany();
+    return users.map((u) => new UserResponseDto(u.toJSON()));
   }
 
   @Get(':id')
-  async getOne(@Param('id') id) {
+  async getOne(@Param('id') id: string) {
     const user = await this.usersService.getOne(id);
     return new UserResponseDto(user.toJSON());
   }
@@ -54,7 +55,7 @@ export class UsersController {
   @Put(':id')
   async updateOne(
     @Res() res,
-    @Param('id') id,
+    @Param('id') id: string,
     @Body() dto: UserUpdateRequestDto
   ) {
     await this.usersService.updateOne(id, dto);
@@ -62,7 +63,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  async deleteOne(@Param('id') id) {
+  async deleteOne(@Param('id') id: string) {
     const order = await this.usersService.deleteOne(id);
     if (!order) throw new HttpException({}, HttpStatus.NOT_FOUND);
   }

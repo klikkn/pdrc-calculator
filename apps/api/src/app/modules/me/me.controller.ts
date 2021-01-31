@@ -17,6 +17,7 @@ import { OrdersService } from '../orders/orders.service';
 import { UsersService } from '../users/users.service';
 import {
   MeCreateOrderRequestDto,
+  MeOrderResponseDto,
   MeResponseDto,
   MeUpdateOrderRequestDto,
   MeUpdateRequestDto,
@@ -45,16 +46,16 @@ export class MeController {
   @Get('orders/')
   async getManyOrders(@Request() req) {
     const orders = await this.ordersService.getMany({ ownerId: req.user._id });
-    return orders.map((o) => o.toJSON());
+    return orders.map((o) => new MeOrderResponseDto(o.toJSON()));
   }
 
   @Get('orders/:id')
-  async getOneOrder(@Request() req, @Param('id') id) {
+  async getOneOrder(@Request() req, @Param('id') id: string) {
     const order = await this.ordersService.getOne(id, {
       ownerId: req.user._id,
     });
     if (!order) throw new HttpException({}, HttpStatus.NOT_FOUND);
-    return order.toJSON();
+    return new MeOrderResponseDto(order.toJSON());
   }
 
   @Post('orders')
@@ -63,14 +64,14 @@ export class MeController {
       ...dto,
       ownerId: req.user._id,
     });
-    return order.toJSON();
+    return new MeOrderResponseDto(order.toJSON());
   }
 
   @Put('orders/:id')
   async updateOrder(
     @Res() res,
     @Request() req,
-    @Param('id') id,
+    @Param('id') id: string,
     @Body() dto: MeUpdateOrderRequestDto
   ) {
     const order = await this.ordersService.updateOne(
@@ -83,7 +84,7 @@ export class MeController {
   }
 
   @Delete('orders/:id')
-  async deleteOrder(@Request() req, @Param('id') id) {
+  async deleteOrder(@Request() req, @Param('id') id: string) {
     const order = await this.ordersService.deleteOne(id, {
       ownerId: req.user._id,
     });

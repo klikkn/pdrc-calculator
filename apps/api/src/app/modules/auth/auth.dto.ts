@@ -1,8 +1,17 @@
-import { Exclude } from 'class-transformer';
 import { Equals, IsOptional } from 'class-validator';
-import { Role } from '@pdrc/api-interfaces';
-import { UserCreateRequestDto, UserResponseDto } from '../users/users.dto';
 import { ApiProperty } from '@nestjs/swagger';
+
+import { Role, ILogin } from '@pdrc/api-interfaces';
+
+import { UserCreateRequestDto } from '../users/users.dto';
+
+export class UserLoginDto implements ILogin {
+  @ApiProperty()
+  username: string;
+
+  @ApiProperty()
+  password: string;
+}
 
 export class UserRegisterRequestDto extends UserCreateRequestDto {
   @ApiProperty({ readOnly: true })
@@ -10,6 +19,3 @@ export class UserRegisterRequestDto extends UserCreateRequestDto {
   @Equals(undefined)
   role: Role;
 }
-
-@Exclude()
-export class UserRegisterResponseDto extends UserResponseDto {}
