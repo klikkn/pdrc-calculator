@@ -33,10 +33,7 @@ export class AuthService {
   }
 
   async register(dto: UserRegisterRequestDto) {
-    const user = await this.userService.createOne({
-      ...dto,
-      options: DEFAULT_USER_OPTIONS,
-    });
+    const user = await this.userService.createOne({ ...dto });
     return this.login(user);
   }
 }

@@ -16,6 +16,7 @@ import { Public } from '../../shared/decorators';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
 import { UserRegisterRequestDto, UserLoginDto } from './auth.dto';
+import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
 
 @Controller('auth')
 export class AuthController {
@@ -35,6 +36,7 @@ export class AuthController {
     try {
       const access_token = await this.authService.register({
         ...dto,
+        options: DEFAULT_USER_OPTIONS,
         role: Roles.User,
       });
       return { access_token };
