@@ -167,8 +167,7 @@ describe('Me e2e', () => {
       .send({ ...MOCK_ORDER })
       .expect(function ({ body }) {
         if (!body) throw new Error('Body is undefined');
-        if (body.ownerId != loggedUser._id)
-          throw new Error('Logged user should be an owner');
+        if (body.ownerId) throw new Error('Order should not contain ownerId');
       })
       .expect(201);
   });

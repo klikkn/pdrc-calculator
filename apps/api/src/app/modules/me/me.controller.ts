@@ -17,6 +17,7 @@ import { OrdersService } from '../orders/orders.service';
 import { UsersService } from '../users/users.service';
 import {
   MeCreateOrderRequestDto,
+  MeOrderResponseDto,
   MeResponseDto,
   MeUpdateOrderRequestDto,
   MeUpdateRequestDto,
@@ -45,7 +46,7 @@ export class MeController {
   @Get('orders/')
   async getManyOrders(@Request() req) {
     const orders = await this.ordersService.getMany({ ownerId: req.user._id });
-    return orders.map((o) => o.toJSON());
+    return orders.map((o) => new MeOrderResponseDto(o.toJSON()));
   }
 
   @Get('orders/:id')
@@ -54,7 +55,7 @@ export class MeController {
       ownerId: req.user._id,
     });
     if (!order) throw new HttpException({}, HttpStatus.NOT_FOUND);
-    return order.toJSON();
+    return new MeOrderResponseDto(order.toJSON());
   }
 
   @Post('orders')
@@ -63,7 +64,7 @@ export class MeController {
       ...dto,
       ownerId: req.user._id,
     });
-    return order.toJSON();
+    return new MeOrderResponseDto(order.toJSON());
   }
 
   @Put('orders/:id')

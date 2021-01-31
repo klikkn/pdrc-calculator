@@ -31,8 +31,9 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
-  getMany() {
-    return this.usersService.getMany();
+  async getMany() {
+    const users = await this.usersService.getMany();
+    return users.map((u) => new UserResponseDto(u.toJSON()));
   }
 
   @Get(':id')
