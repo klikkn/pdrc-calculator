@@ -36,7 +36,7 @@ export class OrdersController {
   }
 
   @Get(':id')
-  async getOne(@Param('id') id) {
+  async getOne(@Param('id') id: string) {
     const order = await this.ordersService.getOne(id, {});
     if (!order) throw new HttpException({}, HttpStatus.NOT_FOUND);
     return new OrderResponseDto(order.toJSON());
@@ -52,7 +52,7 @@ export class OrdersController {
   @Put(':id')
   async updateOne(
     @Res() res,
-    @Param('id') id,
+    @Param('id') id: string,
     @Body() dto: OrderUpdateRequestDto
   ) {
     const order = await this.ordersService.updateOne(id, {}, dto);
@@ -61,7 +61,7 @@ export class OrdersController {
   }
 
   @Delete(':id')
-  async deleteOne(@Param('id') id) {
+  async deleteOne(@Param('id') id: string) {
     const order = await this.ordersService.deleteOne(id, {});
     if (!order) throw new HttpException({}, HttpStatus.NOT_FOUND);
   }

@@ -50,7 +50,7 @@ export class MeController {
   }
 
   @Get('orders/:id')
-  async getOneOrder(@Request() req, @Param('id') id) {
+  async getOneOrder(@Request() req, @Param('id') id: string) {
     const order = await this.ordersService.getOne(id, {
       ownerId: req.user._id,
     });
@@ -71,7 +71,7 @@ export class MeController {
   async updateOrder(
     @Res() res,
     @Request() req,
-    @Param('id') id,
+    @Param('id') id: string,
     @Body() dto: MeUpdateOrderRequestDto
   ) {
     const order = await this.ordersService.updateOne(
@@ -84,7 +84,7 @@ export class MeController {
   }
 
   @Delete('orders/:id')
-  async deleteOrder(@Request() req, @Param('id') id) {
+  async deleteOrder(@Request() req, @Param('id') id: string) {
     const order = await this.ordersService.deleteOne(id, {
       ownerId: req.user._id,
     });
