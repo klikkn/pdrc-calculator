@@ -16,12 +16,15 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import {
   CarClass,
+  classes,
   IPriceTable,
   IUser,
   IUserOptions,
   Part,
+  parts,
   Role,
   Size,
+  sizes,
 } from '@pdrc/api-interfaces';
 
 import { UserDocument } from './user.schema';
@@ -42,7 +45,7 @@ export class PriceTableDto implements IPriceTable {
 }
 
 export class UserOptionsDto implements IUserOptions {
-  @ApiProperty()
+  @ApiProperty({ enum: classes })
   @IsNotEmpty()
   classes: CarClass[];
 
@@ -50,11 +53,11 @@ export class UserOptionsDto implements IUserOptions {
   @IsNotEmpty()
   columns: number[];
 
-  @ApiProperty()
+  @ApiProperty({ enum: parts })
   @IsNotEmpty()
   parts: Part[];
 
-  @ApiProperty()
+  @ApiProperty({ enum: sizes })
   @IsNotEmpty()
   sizes: Size[];
 
