@@ -3,7 +3,7 @@ import {
   BadRequestException,
   ValidationPipe,
 } from '@nestjs/common';
-import { Roles } from '@pdrc/api-interfaces';
+import { Role } from '@pdrc/api-interfaces';
 import { UserRegisterRequestDto } from './auth.dto';
 
 describe('Auth DTO', () => {
@@ -54,11 +54,11 @@ describe('Auth DTO', () => {
 
     it('error with role', async () => {
       await expect(
-        target.transform({ ...user, role: Roles.User }, metadata)
+        target.transform({ ...user, role: Role.User }, metadata)
       ).rejects.toThrow(BadRequestException);
 
       await expect(
-        target.transform({ ...user, role: Roles.Admin }, metadata)
+        target.transform({ ...user, role: Role.Admin }, metadata)
       ).rejects.toThrow(BadRequestException);
     });
   });

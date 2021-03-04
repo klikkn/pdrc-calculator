@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { clone } from 'ramda';
 
-import { IUserOptions, Roles } from '@pdrc/api-interfaces';
+import { IUserOptions, Role } from '@pdrc/api-interfaces';
 import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
 import {
   PriceTableDto,
@@ -37,9 +37,10 @@ describe('Users DTO', () => {
     });
 
     it.each<keyof UserOptionsDto>([
+      'classes',
       'columns',
-      'columnsTitle',
-      'rowsTitle',
+      'parts',
+      'sizes',
       'tables',
     ])('error without %s', async (key: keyof UserOptionsDto) => {
       const copy = { ...data };
@@ -91,7 +92,7 @@ describe('Users DTO', () => {
     const user = {
       email: 'user1@google.ru',
       password: 'password',
-      role: Roles.User,
+      role: Role.User,
     };
 
     const metadata: ArgumentMetadata = {
@@ -106,7 +107,7 @@ describe('Users DTO', () => {
 
     it('success with role admin', async () => {
       await expect(
-        target.transform({ ...user, role: Roles.Admin }, metadata)
+        target.transform({ ...user, role: Role.Admin }, metadata)
       ).toBeTruthy();
     });
 
@@ -182,7 +183,7 @@ describe('Users DTO', () => {
 
     it('error with new role', async () => {
       await expect(
-        target.transform({ user, role: Roles.User }, metadata)
+        target.transform({ user, role: Role.User }, metadata)
       ).rejects.toThrow(BadRequestException);
     });
   });

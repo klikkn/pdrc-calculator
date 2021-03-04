@@ -1,15 +1,15 @@
 import { CanActivate } from '@nestjs/common';
-import { Role, Roles } from '@pdrc/api-interfaces';
+import { Role } from '@pdrc/api-interfaces';
 import { RolesGuard } from './auth.guard';
 
 describe('RBAC Guard', () => {
   test.each([
-    [[Roles.Admin], Roles.Admin, true],
-    [[Roles.Admin], Roles.User, false],
-    [[Roles.User], Roles.Admin, false],
-    [[Roles.User], Roles.User, true],
-    [[Roles.Admin, Roles.User], Roles.Admin, true],
-    [[Roles.Admin, Roles.User], Roles.User, true],
+    [[Role.Admin], Role.Admin, true],
+    [[Role.Admin], Role.User, false],
+    [[Role.User], Role.Admin, false],
+    [[Role.User], Role.User, true],
+    [[Role.Admin, Role.User], Role.Admin, true],
+    [[Role.Admin, Role.User], Role.User, true],
   ])(
     'Guard check roles: %s, user is %s, should be %s',
     (roles: Role[], role: Role, result) => {

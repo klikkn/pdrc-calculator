@@ -53,7 +53,7 @@ export class OrderCreateRequestDto implements IOrder {
 class OrderItemDto implements IOrderItem {
   @ApiProperty()
   @IsNotEmpty()
-  column: string;
+  carClass: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -62,7 +62,10 @@ class OrderItemDto implements IOrderItem {
   @ApiProperty()
   @IsNotEmpty()
   part: string;
-  row: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  size: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -70,7 +73,7 @@ class OrderItemDto implements IOrderItem {
 
   @ApiProperty()
   @IsNotEmpty()
-  value: number;
+  price: number;
 }
 
 export class OrderUpdateRequestDto extends OrderCreateRequestDto {}

@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
-import { Roles } from '@pdrc/api-interfaces';
+import { Role } from '@pdrc/api-interfaces';
 
 import { RolesGuard } from '../../shared/guards/auth.guard';
 import {
@@ -25,7 +25,7 @@ import { OrdersService } from './orders.service';
 
 @Controller('orders')
 @ApiBearerAuth()
-@UseGuards(new RolesGuard([Roles.Admin]))
+@UseGuards(new RolesGuard([Role.Admin]))
 export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 

@@ -9,20 +9,20 @@ export const MOCK_ORDER: Omit<IOrder, 'ownerId'> = {
   date: new Date(),
   items: [
     {
-      column: 'A',
+      carClass: 'A',
       count: 1,
       part: 'right door',
-      row: '1-2',
+      size: '1-2',
       table: 'Complicated',
-      value: 200,
+      price: 200,
     },
     {
-      column: 'A',
+      carClass: 'A',
       count: 1,
       part: 'right door',
-      row: '1-2',
+      size: '1-2',
       table: 'Simple',
-      value: 200,
+      price: 200,
     },
   ],
 };

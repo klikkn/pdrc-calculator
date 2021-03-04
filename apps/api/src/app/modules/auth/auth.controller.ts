@@ -9,7 +9,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 
-import { Roles } from '@pdrc/api-interfaces';
+import { Role } from '@pdrc/api-interfaces';
 import { ApiBody } from '@nestjs/swagger';
 
 import { Public } from '../../shared/decorators';
@@ -37,7 +37,7 @@ export class AuthController {
       const access_token = await this.authService.register({
         ...dto,
         options: DEFAULT_USER_OPTIONS,
-        role: Roles.User,
+        role: Role.User,
       });
       return { access_token };
     } catch (err) {

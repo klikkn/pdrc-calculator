@@ -4,7 +4,7 @@ import { INestApplication } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Model } from 'mongoose';
 
-import { IOrder, Roles } from '@pdrc/api-interfaces';
+import { IOrder, Role } from '@pdrc/api-interfaces';
 
 import { AppModule } from '../app/app.module';
 import { Order, OrderDocument } from '../app/modules/orders/order.schema';
@@ -19,20 +19,20 @@ const order: Omit<IOrder, 'ownerId'> = {
   date: new Date(),
   items: [
     {
-      column: 'A',
+      carClass: 'A',
       count: 1,
       part: 'right door',
-      row: '1-2',
+      size: '1-2',
       table: 'Complicated',
-      value: 200,
+      price: 200,
     },
     {
-      column: 'A',
+      carClass: 'A',
       count: 1,
       part: 'right door',
-      row: '1-2',
+      size: '1-2',
       table: 'Simple',
-      value: 200,
+      price: 200,
     },
   ],
 };
@@ -62,7 +62,7 @@ describe('Orders e2e', () => {
     regularUser = await userModel.create({
       email: 'user1@google.com',
       password: 'password',
-      role: Roles.User,
+      role: Role.User,
     });
   });
 
@@ -76,7 +76,7 @@ describe('Orders e2e', () => {
       const admin = {
         email: 'admin@google.com',
         password: 'password',
-        role: Roles.Admin,
+        role: Role.Admin,
       };
 
       await userModel.create(admin);
@@ -173,7 +173,7 @@ describe('Orders e2e', () => {
       const user = {
         email: 'user@google.com',
         password: 'password',
-        role: Roles.User,
+        role: Role.User,
       };
 
       await userModel.create(user);
