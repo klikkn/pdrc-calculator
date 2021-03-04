@@ -4,7 +4,7 @@ import { INestApplication } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { clone } from 'ramda';
 
-import { Roles } from '@pdrc/api-interfaces';
+import { Role } from '@pdrc/api-interfaces';
 
 import { MOCK_ORDER } from './mocks';
 import { User, UserDocument } from '../app/modules/users/user.schema';
@@ -16,7 +16,7 @@ import { Order, OrderDocument } from '../app/modules/orders/order.schema';
 const user = {
   email: 'user1@google.com',
   password: 'password',
-  role: Roles.User,
+  role: Role.User,
   options: DEFAULT_USER_OPTIONS,
 };
 
@@ -47,7 +47,7 @@ describe('Me e2e', () => {
     orderModel = module.get(`${Order.name}Model`);
     await app.init();
 
-    loggedUser = await userModel.create({ ...user, role: Roles.Admin });
+    loggedUser = await userModel.create({ ...user, role: Role.Admin });
     const { body } = await request(app.getHttpServer())
       .post('/auth/login')
       .send({ username: user.email, password: user.password });

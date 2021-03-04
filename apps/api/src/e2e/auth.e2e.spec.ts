@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { Roles } from '@pdrc/api-interfaces';
+import { Role } from '@pdrc/api-interfaces';
 
 import { AppModule } from '../app/app.module';
 import { User, UserDocument } from '../app/modules/users/user.schema';
@@ -17,7 +17,7 @@ const user = {
 const userDocument = {
   email: 'user1@google.com',
   password: 'password',
-  role: Roles.User,
+  role: Role.User,
 };
 
 describe('Auth e2e', () => {

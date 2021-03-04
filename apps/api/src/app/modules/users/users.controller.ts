@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
-import { Roles } from '@pdrc/api-interfaces';
+import { Role } from '@pdrc/api-interfaces';
 
 import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
 import { RolesGuard } from '../../shared/guards/auth.guard';
@@ -26,7 +26,7 @@ import { UsersService } from './users.service';
 
 @Controller('users')
 @ApiBearerAuth()
-@UseGuards(new RolesGuard([Roles.Admin]))
+@UseGuards(new RolesGuard([Role.Admin]))
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -47,7 +47,7 @@ export class UsersController {
     //TODO: implement user options
     const user = await this.usersService.createOne({
       ...dto,
-      options: dto.role === Roles.User ? DEFAULT_USER_OPTIONS : undefined,
+      options: dto.role === Role.User ? DEFAULT_USER_OPTIONS : undefined,
     });
     return new UserResponseDto(user.toJSON());
   }

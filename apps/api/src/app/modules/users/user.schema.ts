@@ -1,11 +1,19 @@
 import { Document } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IPriceTable, IUser, IUserOptions, Role } from '@pdrc/api-interfaces';
+import {
+  CarClass,
+  IPriceTable,
+  IUser,
+  IUserOptions,
+  Part,
+  Role,
+  Size,
+} from '@pdrc/api-interfaces';
 
 @Schema()
 export class PriceTable implements IPriceTable {
   @Prop({ required: true })
-  rows: string[];
+  rows: number[];
 
   @Prop({ required: true })
   title: string;
@@ -17,13 +25,16 @@ export class PriceTable implements IPriceTable {
 @Schema()
 export class UserOptions implements IUserOptions {
   @Prop({ required: true })
-  columns: string[];
+  classes: CarClass[];
 
   @Prop({ required: true })
-  columnsTitle: string;
+  columns: number[];
 
   @Prop({ required: true })
-  rowsTitle: string;
+  parts: Part[];
+
+  @Prop({ required: true })
+  sizes: Size[];
 
   @Prop({ required: true })
   tables: PriceTable[];

@@ -15,11 +15,13 @@ import { Exclude, Expose, Type, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 import {
+  CarClass,
   IPriceTable,
   IUser,
   IUserOptions,
+  Part,
   Role,
-  Roles,
+  Size,
 } from '@pdrc/api-interfaces';
 
 import { UserDocument } from './user.schema';
@@ -28,7 +30,7 @@ export class PriceTableDto implements IPriceTable {
   @ApiProperty()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  rows: string[];
+  rows: number[];
 
   @ApiProperty()
   @IsNotEmpty()
@@ -42,15 +44,19 @@ export class PriceTableDto implements IPriceTable {
 export class UserOptionsDto implements IUserOptions {
   @ApiProperty()
   @IsNotEmpty()
-  columns: string[];
+  classes: CarClass[];
 
   @ApiProperty()
   @IsNotEmpty()
-  columnsTitle: string;
+  columns: number[];
 
   @ApiProperty()
   @IsNotEmpty()
-  rowsTitle: string;
+  parts: Part[];
+
+  @ApiProperty()
+  @IsNotEmpty()
+  sizes: Size[];
 
   @ApiProperty({ type: () => [PriceTableDto] })
   @ArrayNotEmpty()
@@ -80,9 +86,9 @@ export class UserCreateRequestDto implements IUser {
   @IsNotEmpty()
   password: string;
 
-  @ApiProperty({ enum: [Roles.Admin, Roles.User] })
+  @ApiProperty({ enum: [Role.Admin, Role.User] })
   @IsDefined()
-  @IsIn([Roles.Admin, Roles.User])
+  @IsIn([Role.Admin, Role.User])
   role: Role;
 }
 
@@ -100,7 +106,7 @@ export class UserUpdateRequestDto extends UserCreateRequestDto
   password: string;
 
   @ApiProperty({ required: false })
-  @ValidateIf((o) => o.role === Roles.User)
+  @ValidateIf((o) => o.role === Role.User)
   @IsOptional()
   @ValidateNested()
   @Type(() => UserOptionsDto)

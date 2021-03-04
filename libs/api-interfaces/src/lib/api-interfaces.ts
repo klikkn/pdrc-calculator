@@ -1,4 +1,4 @@
-import { Role } from './api-types';
+import { CarClass, Part, Role, Size } from './api-types';
 
 export interface Message {
   message: string;
@@ -17,14 +17,15 @@ export interface IUser {
 }
 
 export interface IUserOptions {
-  columns: string[];
-  columnsTitle: string;
-  rowsTitle: string;
+  classes: CarClass[];
+  columns: number[];
+  parts: Part[];
+  sizes: Size[];
   tables: IPriceTable[];
 }
 
 export interface IPriceTable {
-  rows: string[];
+  rows: number[];
   title: string;
   values: number[][];
 }
@@ -41,10 +42,10 @@ export interface IOrder {
 }
 
 export interface IOrderItem {
-  column: string;
+  carClass: string;
   count: number;
   part: string;
-  row: string;
+  size: string;
   table: string;
-  value: number;
+  price: number;
 }

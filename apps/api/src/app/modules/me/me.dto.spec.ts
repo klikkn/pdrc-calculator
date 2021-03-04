@@ -4,7 +4,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-import { IOrder, Roles } from '@pdrc/api-interfaces';
+import { IOrder, Role } from '@pdrc/api-interfaces';
 import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
 import {
   MeUpdateOrderRequestDto,
@@ -21,20 +21,20 @@ const order: IOrder = {
   date: new Date(),
   items: [
     {
-      column: 'A',
+      carClass: 'A',
       count: 1,
       part: 'right door',
-      row: '1-2',
+      size: '1-2',
       table: 'Complicated',
-      value: 200,
+      price: 200,
     },
     {
-      column: 'A',
+      carClass: 'A',
       count: 1,
       part: 'right door',
-      row: '1-2',
+      size: '1-2',
       table: 'Simple',
-      value: 200,
+      price: 200,
     },
   ],
   ownerId: '1',
@@ -86,7 +86,7 @@ describe('Me DTO', () => {
     });
 
     it('error with new role', async () => {
-      const data = { ...user, role: Roles.User };
+      const data = { ...user, role: Role.User };
       await expect(target.transform(data, metadata)).rejects.toThrow(
         BadRequestException
       );

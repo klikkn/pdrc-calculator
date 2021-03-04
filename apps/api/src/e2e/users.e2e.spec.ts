@@ -4,7 +4,7 @@ import { INestApplication } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { clone } from 'ramda';
 
-import { Roles } from '@pdrc/api-interfaces';
+import { Role } from '@pdrc/api-interfaces';
 
 import { User, UserDocument } from '../app/modules/users/user.schema';
 import { Model } from 'mongoose';
@@ -14,7 +14,7 @@ import { DEFAULT_USER_OPTIONS } from '../app/shared/consts';
 const testUser = {
   email: 'user1@gmail.com',
   password: 'password',
-  role: Roles.User,
+  role: Role.User,
 };
 
 const testUserToUpdate = {
@@ -54,7 +54,7 @@ describe('Users CRUD e2e', () => {
         password: 'password',
       };
 
-      await userModel.create({ ...user, role: Roles.Admin });
+      await userModel.create({ ...user, role: Role.Admin });
       const { body } = await request(app.getHttpServer())
         .post('/auth/login')
         .send({ username: user.email, password: user.password });
@@ -112,7 +112,7 @@ describe('Users CRUD e2e', () => {
       return request(app.getHttpServer())
         .post(`/users`)
         .set('Authorization', bearerToken)
-        .send({ ...testUser, role: Roles.Admin })
+        .send({ ...testUser, role: Role.Admin })
         .expect(function ({ body }) {
           if (!body) throw new Error('Body is undefined');
           if (body === undefined) throw new Error('User is undefined');
@@ -138,7 +138,7 @@ describe('Users CRUD e2e', () => {
     it(`can update admin user email`, async () => {
       const newUser = await userModel.create({
         ...testUser,
-        role: Roles.Admin,
+        role: Role.Admin,
       });
       const newEmail = 'admin2@google.com';
       await request(app.getHttpServer())
@@ -254,7 +254,7 @@ describe('Users CRUD e2e', () => {
         password: 'password',
       };
 
-      await userModel.create({ ...user, role: Roles.User });
+      await userModel.create({ ...user, role: Role.User });
       const { body } = await request(app.getHttpServer())
         .post('/auth/login')
         .send({ username: user.email, password: user.password });
