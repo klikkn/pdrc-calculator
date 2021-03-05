@@ -53,6 +53,9 @@ export class User implements IUser {
 
   @Prop({ type: String, required: true })
   role: Role;
+
+  @Prop({ type: String })
+  resetToken?: string;
 }
 
 export type UserDocument = User & Document;
