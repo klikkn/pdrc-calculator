@@ -7,11 +7,11 @@ import { clone } from 'ramda';
 import { Role } from '@pdrc/api-interfaces';
 
 import { MOCK_ORDER } from './mocks';
-import { User, UserDocument } from '../app/modules/users/user.schema';
+import { User, UserDocument } from '../src/app/modules/users/user.schema';
 import { Model } from 'mongoose';
-import { AppModule } from '../app/app.module';
-import { DEFAULT_USER_OPTIONS } from '../app/shared/consts';
-import { Order, OrderDocument } from '../app/modules/orders/order.schema';
+import { AppModule } from '../src/app/app.module';
+import { DEFAULT_USER_OPTIONS } from '../src/app/shared/consts';
+import { Order, OrderDocument } from '../src/app/modules/orders/order.schema';
 
 const user = {
   email: 'user1@google.com',

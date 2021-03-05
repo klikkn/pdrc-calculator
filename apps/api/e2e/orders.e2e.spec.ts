@@ -6,9 +6,9 @@ import { Model } from 'mongoose';
 
 import { IOrder, Role } from '@pdrc/api-interfaces';
 
-import { AppModule } from '../app/app.module';
-import { Order, OrderDocument } from '../app/modules/orders/order.schema';
-import { User, UserDocument } from '../app/modules/users/user.schema';
+import { AppModule } from '../src/app/app.module';
+import { Order, OrderDocument } from '../src/app/modules/orders/order.schema';
+import { User, UserDocument } from '../src/app/modules/users/user.schema';
 
 const order: Omit<IOrder, 'ownerId'> = {
   carModel: 'A5',

@@ -6,8 +6,8 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { Role } from '@pdrc/api-interfaces';
 
-import { AppModule } from '../app/app.module';
-import { User, UserDocument } from '../app/modules/users/user.schema';
+import { AppModule } from '../src/app/app.module';
+import { User, UserDocument } from '../src/app/modules/users/user.schema';
 
 const user = {
   email: 'user1@google.com',
