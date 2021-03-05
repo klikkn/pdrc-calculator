@@ -44,7 +44,7 @@ export class AuthService {
     const user = await this.userService.getOneByUsername(username);
     if (!user) return null;
 
-    const resetToken = this.jwtService.sign({ id: user.email });
+    const resetToken = (Math.floor(Math.random() * 90000) + 10000).toString();
     this.userService.updateOne(user.id, { resetToken });
 
     return resetToken;
@@ -63,8 +63,6 @@ export class AuthService {
     ) {
       return null;
     }
-
-    this.jwtService.verify(resetToken);
 
     const hash = bcrypt.hashSync(password);
     return this.userService.updateOne(user.id, {
