@@ -15,6 +15,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { OrdersModule } from './modules/orders/orders.module';
 import { MeModule } from './modules/me/me.module';
+import { AppController } from './app.controller';
 
 @Module({})
 export class AppModule {
@@ -40,6 +41,7 @@ export class AppModule {
           exclude: ['/api*'],
         }),
       ],
+      controllers: [AppController],
       providers: [
         { provide: APP_GUARD, useClass: JwtAuthGuard },
         { provide: APP_PIPE, useClass: ValidationPipe },
