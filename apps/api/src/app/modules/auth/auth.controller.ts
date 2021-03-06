@@ -24,6 +24,7 @@ import {
 } from './auth.dto';
 import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
 import { SmtpService } from '../../shared/services/smtp.service';
+import { Recaptcha } from '@nestlab/google-recaptcha';
 
 @Controller('auth')
 export class AuthController {
@@ -33,6 +34,7 @@ export class AuthController {
   ) {}
 
   @Public()
+  @Recaptcha()
   @HttpCode(200)
   @Post('/register')
   async register(@Body() dto: UserRegisterRequestDto) {
@@ -57,6 +59,7 @@ export class AuthController {
   }
 
   @Public()
+  @Recaptcha()
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('/login')
@@ -72,6 +75,7 @@ export class AuthController {
   }
 
   @Public()
+  @Recaptcha()
   @HttpCode(200)
   @Post('/reset-link')
   async newResetLink(@Res() res, @Body() dto: UserNewResetLinkDto) {
@@ -94,8 +98,9 @@ export class AuthController {
   }
 
   @Public()
-  @Post('/password')
+  @Recaptcha()
   @HttpCode(200)
+  @Post('/password')
   async resetPassword(@Res() res, @Body() dto: UserResetPasswordDto) {
     if (process.env.PASSWORD_RESET_ENABLED !== 'true') {
       throw new HttpException(
