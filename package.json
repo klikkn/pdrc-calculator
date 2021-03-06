@@ -10,7 +10,7 @@
     "serve": "ng serve",
     "build": "ng build",
     "build:prod": "ng build --prod",
-    "heroku-postbuild": "npm run build --prod && npm run build --prod api",
+    "heroku-postbuild": "ng build --prod && ng build --prod api",
     "test": "ng test",
     "lint": "nx workspace-lint && ng lint",
     "e2e": "ng e2e",
