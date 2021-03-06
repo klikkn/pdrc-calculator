@@ -6,10 +6,10 @@ import { clone } from 'ramda';
 
 import { Role } from '@pdrc/api-interfaces';
 
-import { User, UserDocument } from '../app/modules/users/user.schema';
+import { User, UserDocument } from '../src/app/modules/users/user.schema';
 import { Model } from 'mongoose';
-import { AppModule } from '../app/app.module';
-import { DEFAULT_USER_OPTIONS } from '../app/shared/consts';
+import { AppModule } from '../src/app/app.module';
+import { DEFAULT_USER_OPTIONS } from '../src/app/shared/consts';
 
 const testUser = {
   email: 'user1@gmail.com',

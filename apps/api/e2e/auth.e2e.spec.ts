@@ -6,8 +6,8 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { Role } from '@pdrc/api-interfaces';
 
-import { AppModule } from '../app/app.module';
-import { User, UserDocument } from '../app/modules/users/user.schema';
+import { AppModule } from '../src/app/app.module';
+import { User, UserDocument } from '../src/app/modules/users/user.schema';
 
 const user = {
   email: 'user1@google.com',
@@ -82,5 +82,50 @@ describe('Auth e2e', () => {
       .post('/auth/register')
       .send(user)
       .expect(400);
+  });
+
+  it(`Successfull password reset`, async () => {
+    const user = await userModel.create(userDocument);
+    await request(app.getHttpServer())
+      .post('/auth/reset-link')
+      .send({ username: user.email })
+      .expect(200);
+
+    const userWithResetLink = await userModel.findById(user.id);
+    const loginData = { username: user.email, password: 'new-password' };
+    await request(app.getHttpServer())
+      .post('/auth/password')
+      .send({
+        ...loginData,
+        resetToken: userWithResetLink.resetToken,
+      })
+      .expect(200);
+
+    return request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginData)
+      .expect(200);
+  });
+
+  it(`Password reset error if incorrect reset link`, async () => {
+    const user = await userModel.create(userDocument);
+    await request(app.getHttpServer())
+      .post('/auth/reset-link')
+      .send({ username: user.email })
+      .expect(200);
+
+    const loginData = { username: user.email, password: 'new-password' };
+    await request(app.getHttpServer())
+      .post('/auth/password')
+      .send({
+        ...loginData,
+        resetToken: 'aaaa',
+      })
+      .expect(400);
+
+    return request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginData)
+      .expect(401);
   });
 });

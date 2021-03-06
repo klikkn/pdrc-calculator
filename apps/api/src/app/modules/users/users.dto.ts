@@ -93,33 +93,47 @@ export class UserCreateRequestDto implements IUser {
   @IsDefined()
   @IsIn([Role.Admin, Role.User])
   role: Role;
+
+  @Equals(undefined)
+  resetToken?: string;
 }
 
-export class UserUpdateRequestDto extends UserCreateRequestDto
-  implements IUser {
+export class UserUpdateRequestDto implements Partial<IUser> {
+  constructor(partial: Partial<UserCreateRequestDto>) {
+    Object.assign(this, partial);
+  }
+
+  @Equals(undefined)
+  _id?: string;
+
   @ApiProperty({ required: false })
   @IsOptional()
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  email?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsNotEmpty()
-  password: string;
+  password?: string;
 
   @ApiProperty({ required: false })
   @ValidateIf((o) => o.role === Role.User)
   @IsOptional()
   @ValidateNested()
   @Type(() => UserOptionsDto)
-  options: UserOptionsDto;
+  options?: UserOptionsDto;
 
   //user and admin have different workflows, we cannot update a role. Only create a new user.
   @ApiProperty({ required: false })
   @IsOptional()
   @Equals(undefined)
-  role: Role;
+  role?: Role;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNotEmpty()
+  resetToken?: string;
 }
 
 export class UserResponseDto {

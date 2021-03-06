@@ -14,6 +14,7 @@ export interface IUser {
   options?: IUserOptions;
   password: string;
   role: Role;
+  resetToken?: string;
 }
 
 export interface IUserOptions {
