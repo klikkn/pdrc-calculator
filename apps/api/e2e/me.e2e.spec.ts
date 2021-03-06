@@ -6,22 +6,15 @@ import { clone } from 'ramda';
 
 import { Role } from '@pdrc/api-interfaces';
 
-import { MOCK_ORDER } from './mocks';
+import { ORDER_1, USER_DOCUMENT } from '../mocks';
 import { User, UserDocument } from '../src/app/modules/users/user.schema';
 import { Model } from 'mongoose';
 import { AppModule } from '../src/app/app.module';
 import { DEFAULT_USER_OPTIONS } from '../src/app/shared/consts';
 import { Order, OrderDocument } from '../src/app/modules/orders/order.schema';
 
-const user = {
-  email: 'user1@google.com',
-  password: 'password',
-  role: Role.User,
-  options: DEFAULT_USER_OPTIONS,
-};
-
 const userToUpdate = {
-  ...user,
+  ...USER_DOCUMENT,
   role: undefined,
 };
 
@@ -36,10 +29,10 @@ describe('Me e2e', () => {
 
   beforeAll(async () => {
     mongod = new MongoMemoryServer();
-    process.env.DB_URL = await mongod.getUri();
+    const uri = await mongod.getUri();
 
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule.register({ uri })],
     }).compile();
 
     app = module.createNestApplication();
@@ -47,10 +40,13 @@ describe('Me e2e', () => {
     orderModel = module.get(`${Order.name}Model`);
     await app.init();
 
-    loggedUser = await userModel.create({ ...user, role: Role.Admin });
+    loggedUser = await userModel.create({ ...USER_DOCUMENT, role: Role.Admin });
     const { body } = await request(app.getHttpServer())
       .post('/auth/login')
-      .send({ username: user.email, password: user.password });
+      .send({
+        username: USER_DOCUMENT.email,
+        password: USER_DOCUMENT.password,
+      });
     bearerToken = `Bearer ${body.access_token}`;
   });
 
@@ -104,13 +100,13 @@ describe('Me e2e', () => {
       .expect(200);
 
     const users = await userModel.find();
-    expect(users[0].email).toEqual(user.email);
+    expect(users[0].email).toEqual(USER_DOCUMENT.email);
     expect(users[0].options).toEqual(newOptions);
   });
 
   it(`Update error: email should be uniq`, async () => {
     const newUser = {
-      ...user,
+      ...USER_DOCUMENT,
       email: 'user2@google.com',
     };
     await userModel.create(newUser);
@@ -123,8 +119,8 @@ describe('Me e2e', () => {
   });
 
   it(`can get only own orders`, async () => {
-    await orderModel.create({ ...MOCK_ORDER, ownerId: loggedUser._id });
-    await orderModel.create({ ...MOCK_ORDER, ownerId: '1' });
+    await orderModel.create({ ...ORDER_1, ownerId: loggedUser._id });
+    await orderModel.create({ ...ORDER_1, ownerId: '1' });
 
     await request(app.getHttpServer())
       .get(`/me/orders`)
@@ -138,7 +134,7 @@ describe('Me e2e', () => {
 
   it(`can get one own order`, async () => {
     const newOrder = await orderModel.create({
-      ...MOCK_ORDER,
+      ...ORDER_1,
       ownerId: loggedUser._id,
     });
 
@@ -153,7 +149,7 @@ describe('Me e2e', () => {
   });
 
   it(`cannot get one another's order`, async () => {
-    const newOrder = await orderModel.create({ ...MOCK_ORDER, ownerId: '1' });
+    const newOrder = await orderModel.create({ ...ORDER_1, ownerId: '1' });
     await request(app.getHttpServer())
       .get(`/me/orders/${newOrder._id}`)
       .set('Authorization', bearerToken)
@@ -164,7 +160,7 @@ describe('Me e2e', () => {
     return request(app.getHttpServer())
       .post(`/me/orders`)
       .set('Authorization', bearerToken)
-      .send({ ...MOCK_ORDER })
+      .send({ ...ORDER_1 })
       .expect(function ({ body }) {
         if (!body) throw new Error('Body is undefined');
         if (body.ownerId) throw new Error('Order should not contain ownerId');
@@ -174,14 +170,14 @@ describe('Me e2e', () => {
 
   it(`can update own order`, async () => {
     const newOrder = await orderModel.create({
-      ...MOCK_ORDER,
+      ...ORDER_1,
       ownerId: loggedUser._id,
     });
 
     await request(app.getHttpServer())
       .put(`/me/orders/${newOrder._id}`)
       .set('Authorization', bearerToken)
-      .send({ ...MOCK_ORDER })
+      .send({ ...ORDER_1 })
       .expect(function ({ body }) {
         if (!body) throw new Error('Body is undefined');
       })
@@ -189,17 +185,17 @@ describe('Me e2e', () => {
   });
 
   it(`cannot update another's order`, async () => {
-    const newOrder = await orderModel.create({ ...MOCK_ORDER, ownerId: '1' });
+    const newOrder = await orderModel.create({ ...ORDER_1, ownerId: '1' });
     await request(app.getHttpServer())
       .put(`/me/orders/${newOrder._id}`)
       .set('Authorization', bearerToken)
-      .send({ ...MOCK_ORDER })
+      .send({ ...ORDER_1 })
       .expect(404);
   });
 
   it(`can delete own order`, async () => {
     const newOrder = await orderModel.create({
-      ...MOCK_ORDER,
+      ...ORDER_1,
       ownerId: loggedUser._id,
     });
 
@@ -213,7 +209,7 @@ describe('Me e2e', () => {
   });
 
   it(`cannot delete another's order`, async () => {
-    const newOrder = await orderModel.create({ ...MOCK_ORDER, ownerId: '1' });
+    const newOrder = await orderModel.create({ ...ORDER_1, ownerId: '1' });
     await request(app.getHttpServer())
       .delete(`/me/orders/${newOrder._id}`)
       .set('Authorization', bearerToken)

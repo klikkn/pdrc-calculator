@@ -1,6 +1,20 @@
-import { IOrder } from '@pdrc/api-interfaces';
+import { IOrder, Role } from '@pdrc/api-interfaces';
+import { DEFAULT_USER_OPTIONS } from '../src/app/shared/consts';
 
-export const MOCK_ORDER: Omit<IOrder, 'ownerId'> = {
+export const ADMIN_DOCUMENT = {
+  email: 'admin@google.com',
+  password: 'admin',
+  role: Role.Admin,
+};
+
+export const USER_DOCUMENT = {
+  email: 'user1@google.com',
+  password: 'user1',
+  role: Role.User,
+  options: DEFAULT_USER_OPTIONS,
+};
+
+export const ORDER_1: Omit<IOrder, 'ownerId'> = {
   carModel: 'A5',
   carProducer: 'Audi',
   category: '1',

@@ -1,5 +1,6 @@
 import {
   ClassSerializerInterceptor,
+  DynamicModule,
   Module,
   ValidationPipe,
 } from '@nestjs/common';
@@ -14,24 +15,27 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { OrdersModule } from './modules/orders/orders.module';
 import { MeModule } from './modules/me/me.module';
 
-@Module({
-  imports: [
-    MongooseModule.forRootAsync({
-      useFactory: () => ({ uri: process.env.DB_URL }),
-    }),
-    UsersModule,
-    AuthModule,
-    OrdersModule,
-    MeModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'pdrc'),
-      exclude: ['/api*'],
-    }),
-  ],
-  providers: [
-    { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_PIPE, useClass: ValidationPipe },
-    { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
-  ],
-})
-export class AppModule {}
+@Module({})
+export class AppModule {
+  static register({ uri }: { uri: string }): DynamicModule {
+    return {
+      module: AppModule,
+      imports: [
+        MongooseModule.forRoot(uri),
+        UsersModule,
+        AuthModule,
+        OrdersModule,
+        MeModule,
+        ServeStaticModule.forRoot({
+          rootPath: join(__dirname, '..', 'pdrc'),
+          exclude: ['/api*'],
+        }),
+      ],
+      providers: [
+        { provide: APP_GUARD, useClass: JwtAuthGuard },
+        { provide: APP_PIPE, useClass: ValidationPipe },
+        { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
+      ],
+    };
+  }
+}

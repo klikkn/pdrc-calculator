@@ -1,8 +1,3 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -10,9 +5,12 @@ import * as helmet from 'helmet';
 import * as rateLimit from 'express-rate-limit';
 
 import { AppModule } from './app/app.module';
+import { createTemporaryApp } from './temporary';
+
+bootstrap();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await createApp();
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
@@ -38,4 +36,10 @@ async function bootstrap() {
   });
 }
 
-bootstrap();
+async function createApp() {
+  const uri = process.env.DB_URL;
+
+  return uri
+    ? NestFactory.create(AppModule.register({ uri }))
+    : createTemporaryApp();
+}

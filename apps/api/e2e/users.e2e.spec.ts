@@ -10,15 +10,16 @@ import { User, UserDocument } from '../src/app/modules/users/user.schema';
 import { Model } from 'mongoose';
 import { AppModule } from '../src/app/app.module';
 import { DEFAULT_USER_OPTIONS } from '../src/app/shared/consts';
+import { USER_DOCUMENT } from '../mocks';
 
-const testUser = {
-  email: 'user1@gmail.com',
-  password: 'password',
-  role: Role.User,
+const USER = {
+  email: USER_DOCUMENT.email,
+  password: USER_DOCUMENT.password,
+  role: USER_DOCUMENT.role,
 };
 
-const testUserToUpdate = {
-  email: testUser.email,
+const USER_DOCUMENT_TO_UPDATE = {
+  email: USER_DOCUMENT.email,
   options: DEFAULT_USER_OPTIONS,
 };
 
@@ -31,10 +32,10 @@ describe('Users CRUD e2e', () => {
 
   beforeAll(async () => {
     mongod = new MongoMemoryServer();
-    process.env.DB_URL = await mongod.getUri();
+    const uri = await mongod.getUri();
 
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule.register({ uri })],
     }).compile();
 
     app = module.createNestApplication();
@@ -62,11 +63,11 @@ describe('Users CRUD e2e', () => {
     });
 
     beforeEach(async () => {
-      await userModel.findOneAndDelete({ email: testUser.email });
+      await userModel.findOneAndDelete({ email: USER_DOCUMENT.email });
     });
 
     it(`can get all users`, async () => {
-      await userModel.create(testUser);
+      await userModel.create(USER_DOCUMENT);
       await request(app.getHttpServer())
         .get(`/users`)
         .set('Authorization', bearerToken)
@@ -79,7 +80,7 @@ describe('Users CRUD e2e', () => {
     });
 
     it(`can get one user`, async () => {
-      const newUser = await userModel.create(testUser);
+      const newUser = await userModel.create(USER_DOCUMENT);
       await request(app.getHttpServer())
         .get(`/users/${newUser._id}`)
         .set('Authorization', bearerToken)
@@ -94,7 +95,7 @@ describe('Users CRUD e2e', () => {
       return request(app.getHttpServer())
         .post(`/users`)
         .set('Authorization', bearerToken)
-        .send(testUser)
+        .send(USER)
         .expect(function ({ body }) {
           if (!body) throw new Error('Body is undefined');
           if (body === undefined) throw new Error('User is undefined');
@@ -112,7 +113,7 @@ describe('Users CRUD e2e', () => {
       return request(app.getHttpServer())
         .post(`/users`)
         .set('Authorization', bearerToken)
-        .send({ ...testUser, role: Role.Admin })
+        .send({ ...USER, role: Role.Admin })
         .expect(function ({ body }) {
           if (!body) throw new Error('Body is undefined');
           if (body === undefined) throw new Error('User is undefined');
@@ -127,17 +128,17 @@ describe('Users CRUD e2e', () => {
     });
 
     it(`create error: user email should be uniq`, async () => {
-      await userModel.create(testUser);
+      await userModel.create(USER_DOCUMENT);
       await request(app.getHttpServer())
         .post(`/users`)
         .set('Authorization', bearerToken)
-        .send(testUser)
+        .send(USER)
         .expect(500);
     });
 
     it(`can update admin user email`, async () => {
       const newUser = await userModel.create({
-        ...testUser,
+        ...USER_DOCUMENT,
         role: Role.Admin,
       });
       const newEmail = 'admin2@google.com';
@@ -159,7 +160,7 @@ describe('Users CRUD e2e', () => {
 
     it(`can update regular user email`, async () => {
       const newUser = await userModel.create({
-        ...testUser,
+        ...USER_DOCUMENT,
         options: DEFAULT_USER_OPTIONS,
       });
       const newEmail = 'user2@google.com';
@@ -186,14 +187,14 @@ describe('Users CRUD e2e', () => {
         columns: ['AA', 'BB', 'CC'],
       };
       const newUser = await userModel.create({
-        ...testUser,
+        ...USER_DOCUMENT,
         options: DEFAULT_USER_OPTIONS,
       });
 
       await request(app.getHttpServer())
         .put(`/users/${newUser.id}`)
         .send({
-          ...testUserToUpdate,
+          ...USER_DOCUMENT_TO_UPDATE,
           options: newOptions,
         })
         .set('Authorization', bearerToken)
@@ -206,27 +207,27 @@ describe('Users CRUD e2e', () => {
         .expect(200);
 
       const updatedUser = await userModel.findById(newUser._id);
-      expect(updatedUser.email).toEqual(testUser.email);
+      expect(updatedUser.email).toEqual(USER_DOCUMENT.email);
       expect(updatedUser.options).toEqual(newOptions);
     });
 
     it(`update error: email should be uniq`, async () => {
-      await userModel.create(testUser);
+      await userModel.create(USER_DOCUMENT);
       const newUser = await userModel.create({
-        ...testUser,
+        ...USER_DOCUMENT,
         email: 'user2@gmail.com',
       });
 
       await request(app.getHttpServer())
         .put(`/users/${newUser.id}`)
         .set('Authorization', bearerToken)
-        .send({ ...testUserToUpdate })
+        .send({ ...USER_DOCUMENT_TO_UPDATE })
         .expect(500);
     });
 
     it(`can remove any user`, async () => {
       const newUser = await userModel.create({
-        ...testUser,
+        ...USER_DOCUMENT,
         options: DEFAULT_USER_OPTIONS,
       });
 
@@ -279,7 +280,7 @@ describe('Users CRUD e2e', () => {
       return request(app.getHttpServer())
         .post(`/users`)
         .set('Authorization', bearerToken)
-        .send(testUser)
+        .send(USER_DOCUMENT)
         .expect(403);
     });
 

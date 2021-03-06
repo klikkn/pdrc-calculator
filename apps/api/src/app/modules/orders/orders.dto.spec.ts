@@ -1,34 +1,6 @@
 import { ArgumentMetadata, ValidationPipe } from '@nestjs/common';
-import { IOrder } from '@pdrc/api-interfaces';
+import { ORDER_1 } from '../../../../mocks';
 import { OrderCreateRequestDto, OrderUpdateRequestDto } from './orders.dto';
-
-const order: IOrder = {
-  carModel: 'A5',
-  carProducer: 'Audi',
-  category: '1',
-  clientName: 'Ivan',
-  clientPhone: '89998887766',
-  date: new Date(),
-  items: [
-    {
-      carClass: 'A',
-      count: 1,
-      part: 'right door',
-      size: '1-2',
-      table: 'Complicated',
-      price: 200,
-    },
-    {
-      carClass: 'A',
-      count: 1,
-      part: 'right door',
-      size: '1-2',
-      table: 'Simple',
-      price: 200,
-    },
-  ],
-  ownerId: '1',
-};
 
 describe('Orders DTO', () => {
   const target: ValidationPipe = new ValidationPipe();
@@ -46,13 +18,13 @@ describe('Orders DTO', () => {
       'items',
       'ownerId',
     ])('error without %s', async (key: keyof OrderCreateRequestDto) => {
-      const data = { ...order };
+      const data = { ...ORDER_1 };
       delete data[key];
       await expect(target.transform(data, metadata)).rejects.toThrow();
     });
 
     it(`error with empty items`, async () => {
-      const data = { ...order };
+      const data = { ...ORDER_1 };
       data.items = [];
 
       await expect(target.transform(data, metadata)).rejects.toThrow();
@@ -72,26 +44,26 @@ describe('Orders DTO', () => {
       'items',
       'ownerId',
     ])('error without %s', async (key: keyof OrderUpdateRequestDto) => {
-      const data = { ...order };
+      const data = { ...ORDER_1 };
       delete data[key];
       await expect(target.transform(data, metadata)).rejects.toThrow();
     });
 
     it(`error with empty items`, async () => {
-      const data = { ...order };
+      const data = { ...ORDER_1 };
       data.items = [];
 
       await expect(target.transform(data, metadata)).rejects.toThrow();
     });
 
     it(`error with wrong item, missed property`, async () => {
-      const data = { ...order };
+      const data = { ...ORDER_1 };
       data.items = [{ count: 1, value: 2, part: 3 } as any];
       await expect(target.transform(data, metadata)).rejects.toThrow();
     });
 
     it(`error with wrong item, no properties`, async () => {
-      const data = { ...order };
+      const data = { ...ORDER_1 };
       data.items = [{} as any];
       await expect(target.transform(data, metadata)).rejects.toThrow();
     });

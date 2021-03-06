@@ -4,21 +4,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { Role } from '@pdrc/api-interfaces';
-
 import { AppModule } from '../src/app/app.module';
 import { User, UserDocument } from '../src/app/modules/users/user.schema';
-
-const user = {
-  email: 'user1@google.com',
-  password: 'password',
-};
-
-const userDocument = {
-  email: 'user1@google.com',
-  password: 'password',
-  role: Role.User,
-};
+import { USER_DOCUMENT } from '../mocks';
 
 describe('Auth e2e', () => {
   let app: INestApplication;
@@ -28,10 +16,10 @@ describe('Auth e2e', () => {
 
   beforeAll(async () => {
     mongod = new MongoMemoryServer();
-    process.env.DB_URL = await mongod.getUri();
+    const uri = await mongod.getUri();
 
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule.register({ uri })],
     }).compile();
 
     app = module.createNestApplication();
@@ -49,10 +37,10 @@ describe('Auth e2e', () => {
   });
 
   it(`Successfull login by email`, async () => {
-    await userModel.create(userDocument);
+    await userModel.create(USER_DOCUMENT);
     return request(app.getHttpServer())
       .post('/auth/login')
-      .send({ username: user.email, password: user.password })
+      .send({ username: USER_DOCUMENT.email, password: USER_DOCUMENT.password })
       .expect(function ({ body }) {
         if (!body) throw new Error('Body is undefined');
       })
@@ -62,14 +50,14 @@ describe('Auth e2e', () => {
   it(`Login error if user do not exist in database`, (done) => {
     return request(app.getHttpServer())
       .post('/auth/login')
-      .send({ username: 'user1@google.com', password: 'password' })
+      .send({ username: USER_DOCUMENT.email, password: USER_DOCUMENT.password })
       .expect(401, done);
   });
 
   it(`Successfull user register`, (done) => {
     return request(app.getHttpServer())
       .post('/auth/register')
-      .send(user)
+      .send({ email: USER_DOCUMENT.email, password: USER_DOCUMENT.password })
       .expect(function ({ body }) {
         if (!body) throw new Error('Body is undefined');
       })
@@ -77,15 +65,15 @@ describe('Auth e2e', () => {
   });
 
   it(`Register error if user already exist in database`, async () => {
-    await userModel.create(userDocument);
+    await userModel.create(USER_DOCUMENT);
     return request(app.getHttpServer())
       .post('/auth/register')
-      .send(user)
+      .send({ username: USER_DOCUMENT.email, password: USER_DOCUMENT.password })
       .expect(400);
   });
 
   it(`Successfull password reset`, async () => {
-    const user = await userModel.create(userDocument);
+    const user = await userModel.create(USER_DOCUMENT);
     await request(app.getHttpServer())
       .post('/auth/reset-link')
       .send({ username: user.email })
@@ -108,7 +96,7 @@ describe('Auth e2e', () => {
   });
 
   it(`Password reset error if incorrect reset link`, async () => {
-    const user = await userModel.create(userDocument);
+    const user = await userModel.create(USER_DOCUMENT);
     await request(app.getHttpServer())
       .post('/auth/reset-link')
       .send({ username: user.email })

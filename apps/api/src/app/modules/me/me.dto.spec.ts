@@ -4,41 +4,14 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-import { IOrder, Role } from '@pdrc/api-interfaces';
+import { Role } from '@pdrc/api-interfaces';
+import { ORDER_1 } from '../../../../mocks';
 import { DEFAULT_USER_OPTIONS } from '../../shared/consts';
 import {
   MeUpdateOrderRequestDto,
   MeUpdateRequestDto,
   MeCreateOrderRequestDto,
 } from './me.dto';
-
-const order: IOrder = {
-  carModel: 'A5',
-  carProducer: 'Audi',
-  category: '1',
-  clientName: 'Ivan',
-  clientPhone: '89998887766',
-  date: new Date(),
-  items: [
-    {
-      carClass: 'A',
-      count: 1,
-      part: 'right door',
-      size: '1-2',
-      table: 'Complicated',
-      price: 200,
-    },
-    {
-      carClass: 'A',
-      count: 1,
-      part: 'right door',
-      size: '1-2',
-      table: 'Simple',
-      price: 200,
-    },
-  ],
-  ownerId: '1',
-};
 
 describe('Me DTO', () => {
   const target: ValidationPipe = new ValidationPipe();
@@ -101,7 +74,9 @@ describe('Me DTO', () => {
     };
 
     it(`error with new ownerId`, async () => {
-      await expect(target.transform(order, metadata)).rejects.toThrow();
+      await expect(
+        target.transform({ ...ORDER_1, ownerId: '1' }, metadata)
+      ).rejects.toThrow();
     });
   });
 
@@ -113,7 +88,9 @@ describe('Me DTO', () => {
     };
 
     it(`error with new ownerId`, async () => {
-      await expect(target.transform(order, metadata)).rejects.toThrow();
+      await expect(
+        target.transform({ ...ORDER_1, ownerId: '1' }, metadata)
+      ).rejects.toThrow();
     });
   });
 });

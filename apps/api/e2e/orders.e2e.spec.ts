@@ -4,38 +4,12 @@ import { INestApplication } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Model } from 'mongoose';
 
-import { IOrder, Role } from '@pdrc/api-interfaces';
+import { Role } from '@pdrc/api-interfaces';
 
 import { AppModule } from '../src/app/app.module';
 import { Order, OrderDocument } from '../src/app/modules/orders/order.schema';
 import { User, UserDocument } from '../src/app/modules/users/user.schema';
-
-const order: Omit<IOrder, 'ownerId'> = {
-  carModel: 'A5',
-  carProducer: 'Audi',
-  category: '1',
-  clientName: 'Ivan',
-  clientPhone: '89998887766',
-  date: new Date(),
-  items: [
-    {
-      carClass: 'A',
-      count: 1,
-      part: 'right door',
-      size: '1-2',
-      table: 'Complicated',
-      price: 200,
-    },
-    {
-      carClass: 'A',
-      count: 1,
-      part: 'right door',
-      size: '1-2',
-      table: 'Simple',
-      price: 200,
-    },
-  ],
-};
+import { ORDER_1 } from '../mocks';
 
 describe('Orders e2e', () => {
   let app: INestApplication;
@@ -48,10 +22,10 @@ describe('Orders e2e', () => {
 
   beforeAll(async () => {
     mongod = new MongoMemoryServer();
-    process.env.DB_URL = await mongod.getUri();
+    const uri = await mongod.getUri();
 
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule.register({ uri })],
     }).compile();
 
     app = module.createNestApplication();
@@ -91,7 +65,7 @@ describe('Orders e2e', () => {
     });
 
     it(`can get all orders`, async () => {
-      await orderModel.create({ ...order, ownerId: regularUser._id });
+      await orderModel.create({ ...ORDER_1, ownerId: regularUser._id });
       await request(app.getHttpServer())
         .get(`/orders`)
         .set('Authorization', bearerToken)
@@ -104,7 +78,7 @@ describe('Orders e2e', () => {
 
     it(`can get one order`, async () => {
       const newOrder = await orderModel.create({
-        ...order,
+        ...ORDER_1,
         ownerId: regularUser._id,
       });
 
@@ -122,7 +96,7 @@ describe('Orders e2e', () => {
       return request(app.getHttpServer())
         .post(`/orders`)
         .set('Authorization', bearerToken)
-        .send({ ...order, ownerId: regularUser._id })
+        .send({ ...ORDER_1, ownerId: regularUser._id })
         .expect(function ({ body }) {
           if (!body) throw new Error('Body is undefined');
         })
@@ -131,14 +105,14 @@ describe('Orders e2e', () => {
 
     it(`can update order`, async () => {
       const newOrder = await orderModel.create({
-        ...order,
+        ...ORDER_1,
         ownerId: regularUser._id,
       });
 
       await request(app.getHttpServer())
         .put(`/orders/${newOrder._id}`)
         .set('Authorization', bearerToken)
-        .send({ ...order, ownerId: regularUser._id, category: '2' })
+        .send({ ...ORDER_1, ownerId: regularUser._id, category: '2' })
         .expect(function ({ body }) {
           if (!body) throw new Error('Body is undefined');
         })
@@ -147,7 +121,7 @@ describe('Orders e2e', () => {
 
     it(`can delete order`, async () => {
       const newOrder = await orderModel.create({
-        ...order,
+        ...ORDER_1,
         ownerId: regularUser._id,
       });
 
