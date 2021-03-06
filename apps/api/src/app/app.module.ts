@@ -8,6 +8,7 @@ import { APP_GUARD, APP_PIPE, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { MongooseModule } from '@nestjs/mongoose';
+import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -26,6 +27,14 @@ export class AppModule {
         AuthModule,
         OrdersModule,
         MeModule,
+        GoogleRecaptchaModule.forRoot({
+          secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
+          response: (req) => req.headers.recaptcha,
+          skipIf:
+            process.env.GOOGLE_RECAPTCHA_ENABLED !== 'true' &&
+            process.env.NODE_ENV !== 'production',
+          agent: null,
+        }),
         ServeStaticModule.forRoot({
           rootPath: join(__dirname, '..', 'pdrc'),
           exclude: ['/api*'],
