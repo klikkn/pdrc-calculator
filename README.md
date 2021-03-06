@@ -48,15 +48,10 @@ Run `nx dep-graph` to see a diagram of the dependencies of your projects.
 
 Visit the [Nx Documentation](https://nx.dev/angular) to learn more.
 
-## Environments
+## In-memory database
 
-### Pipeline
-
-```
-NODE_ENV=pipeline
-```
-
-These users will be created automatically.
+If there is no defined `process.env.DB_URL` an in-memory mongo database will be used.
+In that case, these users will be created automatically.
 
 ```
 {
@@ -71,6 +66,8 @@ These users will be created automatically.
   "password": "user1"
 }
 ```
+
+## Environments
 
 ### Test
 
