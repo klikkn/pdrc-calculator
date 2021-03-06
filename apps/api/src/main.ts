@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as helmet from 'helmet';
 import * as rateLimit from 'express-rate-limit';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { AppModule } from './app/app.module';
 import { createTemporaryApp } from './temporary';
