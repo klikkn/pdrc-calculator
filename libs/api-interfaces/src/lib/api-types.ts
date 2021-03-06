@@ -9,13 +9,6 @@ export const enum Role {
   User = 'user',
 }
 
-export const enum Environment {
-  production = 'production',
-  development = 'development',
-  test = 'test',
-  pipeline = 'pipeline',
-}
-
 export const _parts = [
   'doorFrontLeft',
   'doorFrontRight',

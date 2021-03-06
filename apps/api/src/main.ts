@@ -7,13 +7,11 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { AppModule } from './app/app.module';
 import { createTemporaryApp } from './temporary';
-import { Environment } from '@pdrc/api-interfaces';
 
 bootstrap();
 
 async function bootstrap() {
-  const uri = await getDatabaseUri();
-  const app = await createApp(uri);
+  const app = await createApp();
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
@@ -39,22 +37,10 @@ async function bootstrap() {
   });
 }
 
-async function getDatabaseUri() {
-  if (
-    [Environment.pipeline.toString(), Environment.test.toString()].includes(
-      process.env.NODE_ENV
-    )
-  ) {
-    return new MongoMemoryServer().getUri();
-  }
+async function createApp() {
+  const uri = process.env.DB_URL;
 
-  return process.env.DB_URL;
-}
-
-async function createApp(uri: string) {
-  if ([Environment.pipeline.toString()].includes(process.env.NODE_ENV)) {
-    return createTemporaryApp(uri);
-  }
-
-  return NestFactory.create(AppModule.register({ uri }));
+  return uri
+    ? NestFactory.create(AppModule.register({ uri }))
+    : createTemporaryApp();
 }

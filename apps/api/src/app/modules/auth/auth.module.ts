@@ -8,7 +8,6 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { SmtpService } from '../../shared/services/smtp.service';
 import { SmtpFakeService } from '../../shared/services/smtp-fake.service';
-import { Environment } from '@pdrc/api-interfaces';
 
 @Module({
   imports: [
@@ -26,11 +25,8 @@ import { Environment } from '@pdrc/api-interfaces';
     JwtStrategy,
     {
       provide: SmtpService,
-      useClass: [Environment.production.toString()].includes(
-        process.env.NODE_ENV
-      )
-        ? SmtpService
-        : SmtpFakeService,
+      useClass:
+        process.env.NODE_ENV === 'production' ? SmtpService : SmtpFakeService,
     },
   ],
 })
