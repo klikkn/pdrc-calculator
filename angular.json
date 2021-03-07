@@ -24,7 +24,8 @@
             "assets": [
               "apps/pdrc/src/favicon.ico",
               "apps/pdrc/src/assets",
-              "apps/pdrc/src/manifest.webmanifest"
+              "apps/pdrc/src/manifest.webmanifest",
+              "apps/pdrc/src/sw.js"
             ],
             "styles": ["apps/pdrc/src/styles.scss"],
             "scripts": []

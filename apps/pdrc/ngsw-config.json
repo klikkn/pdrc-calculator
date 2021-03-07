@@ -29,8 +29,8 @@
   ],
   "dataGroups": [
     {
-      "name": "api",
-      "urls": ["/api/**"],
+      "name": "api/me",
+      "urls": ["/api/me/**"],
       "cacheConfig": {
         "strategy": "freshness",
         "maxSize": 100,
